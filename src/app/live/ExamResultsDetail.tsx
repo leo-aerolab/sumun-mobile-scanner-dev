@@ -59,7 +59,7 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
   const percentage = examResults.percentage;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 py-safe">
+    <div className="fixed inset-0 bg-white flex items-center justify-center z-50 py-safe">
       <div className="bg-white shadow-xl w-full max-w-md mx-auto flex flex-col overflow-y-auto flex-1 h-full">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
