@@ -25,7 +25,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
   }
 
   return (
-    <div className="h-[90vh] w-full flex flex-col bg-gray-900 py-safe">
+    <div className="h-full min-h-screen w-full flex flex-col bg-gray-900 py-safe">
       {/* Main content area - centered vertically */}
       <div className="flex-1 flex flex-col items-center justify-center p-12">
         <div className="max-w-96 max-h-96 h-full w-full relative">

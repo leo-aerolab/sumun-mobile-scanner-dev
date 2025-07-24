@@ -31,7 +31,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex justify-center z-50 py-safe">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 py-safe">
       {showDetail && (
         <ExamResultsDetail
           examResults={examResults}
@@ -39,7 +39,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
           onClose={() => setShowDetail(false)}
         />
       )}
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-auto flex flex-col h-[90vh]">
+      <div className="bg-white shadow-xl w-full max-w-md mx-auto flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2">
           <button onClick={onClose} className="text-gray-500 text-2xl">
