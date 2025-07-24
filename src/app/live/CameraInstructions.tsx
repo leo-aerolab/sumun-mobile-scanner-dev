@@ -123,7 +123,7 @@ export function CameraInstructions() {
   }
 
   return (
-    <div className="h-[92vh] flex flex-col justify-between items-center bg-white py-safe">
+    <div className="h-full flex flex-col justify-between items-center bg-white py-safe">
       <div className="w-full pt-6 text-center flex flex-1 flex-col">
         <div className="text-lg font-medium flex justify-center">
           <h2 className="text-gray-900 text-lg"> Consejos para escanear</h2>
