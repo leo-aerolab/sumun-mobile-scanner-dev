@@ -1,0 +1,73 @@
+{
+  "pageDimensions": [1000, 1520],
+  "readBlocks": [
+    {
+      "name": "firstName",
+      "numCharacters": 12,
+      "type": "name",
+      "top": 430,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    },
+    {
+      "name": "lastNameFather",
+      "numCharacters": 12,
+      "type": "name",
+      "top": 555,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    },
+    {
+      "name": "lastNameMother",
+      "numCharacters": 12,
+      "type": "name",
+      "top": 680,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    },
+    {
+      "name": "documentNumber",
+      "numCharacters": 12,
+      "type": "number",
+      "top": 795,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    }
+  ],
+  "visionBlock": {
+    "top": 150,
+    "left": 0,
+    "width": 1000,
+    "height": 500,
+    "extract": ["first_name", "last_name", "student_id", "evaluation_number"]
+  },
+  "fieldBlocks": [
+    {
+      "name": "Questions 1-10",
+      "top": 870,
+      "left": 325,
+      "width": 455,
+      "height": 600,
+      "gapX": 45,
+      "gapY": 0,
+      "numOptions": 5,
+      "numQuestions": 10,
+      "questions": [
+        { "name": "Question 1", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 2", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 3", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 4", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 5", "correctAnswer": "E", "points": 1 },
+        { "name": "Question 6", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 7", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 8", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 9", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 10", "correctAnswer": "E", "points": 1 }
+      ]
+    }
+  ]
+} 

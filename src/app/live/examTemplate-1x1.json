@@ -1,0 +1,113 @@
+{
+  "pageDimensions": [1000, 1520],
+  "readBlocks": [
+    {
+      "name": "firstName",
+      "numCharacters": 12,
+      "type": "name",
+      "top": 430,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    },
+    {
+      "name": "lastNameFather",
+      "numCharacters": 12,
+      "type": "name",
+      "top": 555,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    },
+    {
+      "name": "lastNameMother",
+      "numCharacters": 12,
+      "type": "name",
+      "top": 680,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    },
+    {
+      "name": "documentNumber",
+      "numCharacters": 12,
+      "type": "number",
+      "top": 795,
+      "left": 80,
+      "width": 500,
+      "height": 45
+    }
+  ],
+  "visionBlock": {
+    "top": 220,
+    "left": 0,
+    "width": 1000,
+    "height": 230,
+    "extract": ["first_name", "last_name", "student_id", "evaluation_number"]
+  },
+  "fieldBlocks": [
+    {
+      "name": "Questions 1-10",
+      "top": 870,
+      "left": 95,
+      "width": 215,
+      "height": 580,
+      "numOptions": 5,
+      "numQuestions": 10,
+      "questions": [
+        { "name": "Question 1", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 2", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 3", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 4", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 5", "correctAnswer": "E", "points": 1 },
+        { "name": "Question 6", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 7", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 8", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 9", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 10", "correctAnswer": "E", "points": 1 }
+      ]
+    },
+    {
+      "name": "Questions 11-20",
+      "top": 870,
+      "left": 405,
+      "width": 215,
+      "height": 580,
+      "numOptions": 5,
+      "numQuestions": 10,
+      "questions": [
+        { "name": "Question 11", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 12", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 13", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 14", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 15", "correctAnswer": "E", "points": 1 },
+        { "name": "Question 16", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 17", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 18", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 19", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 20", "correctAnswer": "E", "points": 1 }
+      ]
+    },
+    {
+      "name": "Questions 21-30",
+      "top": 870,
+      "left": 715,
+      "width": 215,
+      "height": 580,
+      "numOptions": 5,
+      "numQuestions": 10,
+      "questions": [
+        { "name": "Question 21", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 22", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 23", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 24", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 25", "correctAnswer": "E", "points": 1 },
+        { "name": "Question 26", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 27", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 28", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 29", "correctAnswer": "D", "points": 1 },
+        { "name": "Question 30", "correctAnswer": "E", "points": 1 }
+      ]
+    }
+  ]
+}
