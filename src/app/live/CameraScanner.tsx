@@ -2,7 +2,6 @@
 
 import cvReadyPromise, { CV } from "@techstark/opencv-js";
 import React, { useEffect, useRef, useState } from "react";
-import { createWorker, Worker } from "tesseract.js";
 import CameraControls from "./CameraControls";
 import CameraOverlay from "./CameraOverlay";
 import ExamResultsModal from "./ExamResultsModal";
@@ -27,7 +26,6 @@ import { ExamResult } from "./examScoring";
 
 export const CameraScanner: React.FC = () => {
   const opencvRef = useRef<CV>(null);
-  const ocrRef = useRef<Worker>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [detections, setDetections] = useState<Detection[]>([]);
@@ -76,13 +74,7 @@ export const CameraScanner: React.FC = () => {
       }
     };
 
-    const loadTesseract = async () => {
-      const worker = await createWorker("spa");
-      ocrRef.current = worker;
-    };
-
     loadOpenCV();
-    loadTesseract();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -304,7 +296,7 @@ export const CameraScanner: React.FC = () => {
   }, []);
 
   const handleCapture = async (detections: Detection[]) => {
-    if (!opencvRef.current || !canvasRef.current || !ocrRef.current) return;
+    if (!opencvRef.current || !canvasRef.current) return;
     if (isProcessingRef.current || examResultsRef.current) return;
 
     // Update refs immediately for instant state tracking
@@ -460,17 +452,6 @@ export const CameraScanner: React.FC = () => {
           isProcessing={isProcessing}
           currentExamType={currentExamType}
         />
-
-      {/* Camera 3D Overlay - covers full area like video */}
-      {/* {canvasRef.current && (
-        <Camera3D
-          detections={detections}
-          videoWidth={canvasRef.current.width}
-          videoHeight={canvasRef.current.height}
-          displayWidth={window.innerWidth}
-          displayHeight={window.innerHeight}
-        />
-      )} */}
 
       {/* Results Modal - positioned within safe area */}
       {!!examResults && (

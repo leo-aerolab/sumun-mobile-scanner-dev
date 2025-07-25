@@ -115,7 +115,7 @@ export const captureAndProcessImage = async (
   console.log("Exam results:", examResults);
   const personalInfoPromise = readPersonalInfo(cv, rawPageMat, examTemplate);
 
-  // Convert processed image to PNG for OCR/tesseract.js
+  // Convert processed image to PNG for OCR
   const postCanvas = document.createElement("canvas");
   postCanvas.width = processedPageMat.cols;
   postCanvas.height = processedPageMat.rows;
