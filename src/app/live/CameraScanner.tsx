@@ -47,7 +47,15 @@ export const CameraScanner: React.FC = () => {
   const examResultsRef = useRef<ExamResult | null>(null);
   const isDetectionActiveRef = useRef(true);
 
-  // Detect if we're on mobile
+  useEffect(() => {
+    console.log("WebView detected:", window.ReactNativeWebView);
+    // if (window.ReactNativeWebView) {
+    //   const message = 'Hello from the WebView content!';
+    //   window.ReactNativeWebView.postMessage(message);
+    // }
+  }, []);
+
+    // Detect if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
       const userAgent = navigator.userAgent || navigator.vendor;
@@ -348,11 +356,25 @@ export const CameraScanner: React.FC = () => {
       examResultsRef.current = result.examResults;
       setExamResults(result.examResults);
 
+      // SEND MESSAGE TO WEBVIEW
+      if (window.ReactNativeWebView) {
+        const data = {
+          type: "examResults",
+          examResults: result.examResults,
+          // personalInfo: result.personalInfo, // TODO:no disponible en el momento de captura
+          // metadata: result.examType.metadata,
+        }
+        console.log("Sending message to webview:", data);
+        window.ReactNativeWebView.postMessage(JSON.stringify(data));
+      }
+  
       // Play success sound for successful scan
       playSuccess();
 
       // Log comprehensive exam processing results
       console.log("📋 Exam Processing Complete:", {
+        type: "examResults",
+        examResults: result.examResults,
         examType: result.examType.name,
         templateId: result.examType.id,
         markerSignature: result.examType.markerIds.join('-'),
