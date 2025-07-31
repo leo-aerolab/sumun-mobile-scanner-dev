@@ -17,7 +17,7 @@ import {
   identifyExamType,
   validateExamSignature,
   visualizeMarkerLayout,
-  ExamSignature
+  ExamSignature,
 } from "./examSignature";
 
 // Import the new types from examScoring
@@ -40,22 +40,37 @@ export const CameraScanner: React.FC = () => {
     "environment"
   );
   const [isMobile, setIsMobile] = useState(false);
-  const [currentExamType, setCurrentExamType] = useState<ExamSignature | null>(null);
+  const [currentExamType, setCurrentExamType] = useState<ExamSignature | null>(
+    null
+  );
+  const [isWebView, setIsWebView] = useState(false);
 
   // Refs for immediate state tracking to avoid closure stale state
   const isProcessingRef = useRef(false);
   const examResultsRef = useRef<ExamResult | null>(null);
   const isDetectionActiveRef = useRef(true);
 
+  // Listen for messages from the webview
   useEffect(() => {
     console.log("WebView detected:", window.ReactNativeWebView);
-    // if (window.ReactNativeWebView) {
-    //   const message = 'Hello from the WebView content!';
-    //   window.ReactNativeWebView.postMessage(message);
-    // }
+
+    if (window.ReactNativeWebView) {
+      setIsWebView(true);
+
+      window.addEventListener("closemodal", (event) => {
+        console.log("closemodal event received:", event);
+        alert("closemodal event received");
+        handleCloseModal();
+      });
+
+      // window.addEventListener("stopscan", (event) => {
+      //   console.log("stopscan event received:", event);
+      //   stopCamera();
+      // });
+    }
   }, []);
 
-    // Detect if we're on mobile
+  // Detect if we're on mobile
   useEffect(() => {
     const checkIfMobile = () => {
       const userAgent = navigator.userAgent || navigator.vendor;
@@ -321,17 +336,20 @@ export const CameraScanner: React.FC = () => {
       console.log(`Marker ${index + 1}:`, {
         id: detection.id,
         center: detection.center,
-        corners: detection.corners
+        corners: detection.corners,
       });
     });
 
     // Validate and identify exam type based on marker signature
     const signatureValidation = validateExamSignature(detections);
     console.log("📝 Exam signature validation:", signatureValidation);
-    
+
     if (signatureValidation.isValid && signatureValidation.examType) {
       setCurrentExamType(signatureValidation.examType);
-      console.log("🎯 Exam type identified:", signatureValidation.examType.name);
+      console.log(
+        "🎯 Exam type identified:",
+        signatureValidation.examType.name
+      );
       console.log("📋 Exam metadata:", signatureValidation.examType.metadata);
     } else {
       console.warn("⚠️ Validation errors:", signatureValidation.errors);
@@ -363,11 +381,11 @@ export const CameraScanner: React.FC = () => {
           examResults: result.examResults,
           // personalInfo: result.personalInfo, // TODO:no disponible en el momento de captura
           // metadata: result.examType.metadata,
-        }
+        };
         console.log("Sending message to webview:", data);
         window.ReactNativeWebView.postMessage(JSON.stringify(data));
       }
-  
+
       // Play success sound for successful scan
       playSuccess();
 
@@ -377,21 +395,35 @@ export const CameraScanner: React.FC = () => {
         examResults: result.examResults,
         examType: result.examType.name,
         templateId: result.examType.id,
-        markerSignature: result.examType.markerIds.join('-'),
+        markerSignature: result.examType.markerIds.join("-"),
         questionsProcessed: result.examResults.questions.length,
         totalScore: `${result.examResults.pointsAchieved}/${result.examResults.totalPoints}`,
-        percentage: Math.round((result.examResults.pointsAchieved / result.examResults.totalPoints) * 100),
-        metadata: result.examType.metadata
+        percentage: Math.round(
+          (result.examResults.pointsAchieved / result.examResults.totalPoints) *
+            100
+        ),
+        metadata: result.examType.metadata,
       });
 
       // Log detailed question results
       console.log("📊 Question Results by Template:");
       result.examResults.questions.forEach((q, index) => {
         const isCorrect = q.selectedAnswer === q.correctAnswer;
-        const status = q.selectedAnswer === "" ? "⚪ (Not answered)" : 
-                      q.selectedAnswer === "?" || q.confidence < 0.3 ? "❓ (Illegible)" :
-                      isCorrect ? "✅ (Correct)" : "❌ (Incorrect)";
-        console.log(`Q${index + 1}: ${q.selectedAnswer || 'No answer'} → ${q.correctAnswer} ${status} ${q.confidence ? `(${Math.round(q.confidence * 100)}%)` : ''}`);
+        const status =
+          q.selectedAnswer === ""
+            ? "⚪ (Not answered)"
+            : q.selectedAnswer === "?" || q.confidence < 0.3
+            ? "❓ (Illegible)"
+            : isCorrect
+            ? "✅ (Correct)"
+            : "❌ (Incorrect)";
+        console.log(
+          `Q${index + 1}: ${q.selectedAnswer || "No answer"} → ${
+            q.correctAnswer
+          } ${status} ${
+            q.confidence ? `(${Math.round(q.confidence * 100)}%)` : ""
+          }`
+        );
       });
 
       // Wait until openai is done parsing the personal info
@@ -469,14 +501,14 @@ export const CameraScanner: React.FC = () => {
       />
 
       {/* Camera Overlay - positioned within safe area */}
-              <CameraOverlay 
-          detections={detections} 
-          isProcessing={isProcessing}
-          currentExamType={currentExamType}
-        />
+      <CameraOverlay
+        detections={detections}
+        isProcessing={isProcessing}
+        currentExamType={currentExamType}
+      />
 
       {/* Results Modal - positioned within safe area */}
-      {!!examResults && (
+      {!!examResults && !isWebView && (
         <ExamResultsModal
           examResults={examResults}
           personalInfo={personalInfo}
