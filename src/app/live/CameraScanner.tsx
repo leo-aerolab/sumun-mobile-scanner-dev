@@ -50,7 +50,7 @@ export const CameraScanner: React.FC = () => {
   const examResultsRef = useRef<ExamResult | null>(null);
   const isDetectionActiveRef = useRef(true);
 
-  // Listen for messages from the webview
+  // Detect if we're in a webview
   useEffect(() => {
     console.log("WebView detected:", window.ReactNativeWebView);
 
@@ -61,11 +61,6 @@ export const CameraScanner: React.FC = () => {
         console.log("closemodal event received:", event);
         handleCloseModal();
       });
-
-      // window.addEventListener("stopscan", (event) => {
-      //   console.log("stopscan event received:", event);
-      //   stopCamera();
-      // });
     }
   }, []);
 
