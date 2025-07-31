@@ -59,7 +59,6 @@ export const CameraScanner: React.FC = () => {
 
       window.addEventListener("closemodal", (event) => {
         console.log("closemodal event received:", event);
-        alert("closemodal event received");
         handleCloseModal();
       });
 
