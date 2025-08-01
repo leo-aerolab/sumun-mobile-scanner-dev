@@ -24,6 +24,7 @@ const ProgressCircle: React.FC<{ percentage: number; large?: boolean }> = ({ per
                 strokeDashoffset={circleCircumference - progress}
                 strokeLinecap="round"
                 style={{ transition: "stroke-dashoffset 0.5s" }}
+                transform={`rotate(-90 ${size / 2} ${size / 2})`}
             />
             <text
                 x="50%"
