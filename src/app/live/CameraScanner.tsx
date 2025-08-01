@@ -24,6 +24,17 @@ import {
 import { ExamPersonalInfoType } from "../api/vision/libs";
 import { ExamResult } from "./examScoring";
 
+function sendMessageToWebView(type: string, data: any) {
+  if (window.ReactNativeWebView) {
+    const message = {
+      type,
+      ...data,
+    };
+    console.log("Sending message to webview:", message);
+    window.ReactNativeWebView.postMessage(JSON.stringify(message));
+  }
+}
+
 export const CameraScanner: React.FC = () => {
   const opencvRef = useRef<CV>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -368,17 +379,7 @@ export const CameraScanner: React.FC = () => {
       examResultsRef.current = result.examResults;
       setExamResults(result.examResults);
 
-      // SEND MESSAGE TO WEBVIEW
-      if (window.ReactNativeWebView) {
-        const data = {
-          type: "examResults",
-          examResults: result.examResults,
-          // personalInfo: result.personalInfo, // TODO:no disponible en el momento de captura
-          // metadata: result.examType.metadata,
-        };
-        console.log("Sending message to webview:", data);
-        window.ReactNativeWebView.postMessage(JSON.stringify(data));
-      }
+      sendMessageToWebView("examResults", { examResults: result.examResults });
 
       // Play success sound for successful scan
       playSuccess();
@@ -424,6 +425,7 @@ export const CameraScanner: React.FC = () => {
       result.personalInfoPromise.then((personalInfo) => {
         setPersonalInfo(personalInfo);
         console.log("Personal info:", personalInfo);
+        sendMessageToWebView("personalInfo", { personalInfo });
       });
     } catch (error) {
       console.error("Capture error:", error);
