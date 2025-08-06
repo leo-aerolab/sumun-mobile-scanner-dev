@@ -514,11 +514,11 @@ export const CameraScanner: React.FC = () => {
       />
 
       {/* Camera Overlay - positioned within safe area */}
-      <CameraOverlay
+      {!examResults && <CameraOverlay
         detections={detections}
         isProcessing={isProcessing}
         currentExamType={currentExamType}
-      />
+      />}
 
       {/* Results Modal - positioned within safe area */}
       {!!examResults && !isWebView && (
