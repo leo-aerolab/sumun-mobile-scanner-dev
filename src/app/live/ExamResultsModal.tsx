@@ -31,7 +31,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 bg-white flex items-center justify-center z-50 py-safe">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 py-safe">
       {showDetail && (
         <ExamResultsDetail
           examResults={examResults}

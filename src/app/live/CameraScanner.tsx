@@ -46,6 +46,7 @@ export const CameraScanner: React.FC = () => {
   const [personalInfo, setPersonalInfo] = useState<ExamPersonalInfoType | null>(
     null
   );
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment"
@@ -375,6 +376,12 @@ export const CameraScanner: React.FC = () => {
         realHeight
       );
 
+      // Capture the current canvas state before stopping the camera
+      if (canvasRef.current && !capturedImage) {
+        const canvasDataURL = canvasRef.current.toDataURL("image/png");
+        setCapturedImage(canvasDataURL);
+      }
+      
       // Update refs immediately
       examResultsRef.current = result.examResults;
       setExamResults(result.examResults);
@@ -445,6 +452,7 @@ export const CameraScanner: React.FC = () => {
     setExamResults(null);
     setPersonalInfo(null);
     setCurrentExamType(null);
+    setCapturedImage(null);
   };
 
   // Function to stop the camera
@@ -481,6 +489,15 @@ export const CameraScanner: React.FC = () => {
         muted
         playsInline
       />
+
+      {/* Captured image overlay - shows when camera is stopped */}
+      {capturedImage && examResults && (
+        <img
+          src={capturedImage}
+          alt="Captured exam"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
 
       {/* Canvas for OpenCV processing - also covers full viewport */}
       <canvas
