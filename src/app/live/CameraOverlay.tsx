@@ -98,7 +98,7 @@ export const CameraOverlay: React.FC<CameraOverlayProps> = ({
         </div>
 
         {/* Instruction text centered within the scanning frame */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center px-4">
             {currentExamType ? (
               <div className="space-y-2">
@@ -118,7 +118,7 @@ export const CameraOverlay: React.FC<CameraOverlayProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* Processing overlay covers the entire scanning frame */}
         {isProcessing && (
