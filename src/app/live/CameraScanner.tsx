@@ -23,6 +23,7 @@ import {
 // Import the new types from examScoring
 import { ExamPersonalInfoType } from "../api/vision/libs";
 import { ExamResult } from "./examScoring";
+import { getExamTemplate } from "./examTemplateManager";
 
 function sendMessageToWebView(type: string, data: any) {
   if (window.ReactNativeWebView) {
@@ -46,7 +47,10 @@ export const CameraScanner: React.FC = () => {
   const [personalInfo, setPersonalInfo] = useState<ExamPersonalInfoType | null>(
     null
   );
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<{
+    canvasDataURL: string;
+    fieldBlocksImage: string;
+  } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment"
@@ -61,6 +65,73 @@ export const CameraScanner: React.FC = () => {
   const isProcessingRef = useRef(false);
   const examResultsRef = useRef<ExamResult | null>(null);
   const isDetectionActiveRef = useRef(true);
+
+  // Function to generate field blocks image from originalDataURL
+  const generateFieldBlocksImage = async (
+    originalDataURL: string,
+    examType: any
+  ): Promise<string> => {
+    // Create a new canvas for the field blocks image
+    const fieldBlocksCanvas = document.createElement("canvas");
+    const fieldBlocksCtx = fieldBlocksCanvas.getContext("2d");
+    if (!fieldBlocksCtx) return "";
+
+    // Get the exam template
+    const template = getExamTemplate(examType);
+
+    // Calculate the bounding box of all field blocks
+    let minLeft = Infinity;
+    let minTop = Infinity;
+    let maxRight = -Infinity;
+    let maxBottom = -Infinity;
+
+    template.fieldBlocks.forEach((block) => {
+      minLeft = Math.min(minLeft, block.left);
+      minTop = Math.min(minTop, block.top);
+      maxRight = Math.max(maxRight, block.left + block.width);
+      maxBottom = Math.max(maxBottom, block.top + block.height);
+    });
+
+    // Set canvas size to match the field blocks bounding box
+    const fieldBlocksWidth = maxRight - minLeft;
+    const fieldBlocksHeight = maxBottom - minTop;
+    fieldBlocksCanvas.width = fieldBlocksWidth;
+    fieldBlocksCanvas.height = fieldBlocksHeight;
+
+    // Create an image from the originalDataURL
+    const originalImage = new Image();
+    originalImage.crossOrigin = "anonymous";
+
+    return new Promise<string>((resolve) => {
+      originalImage.onload = () => {
+        // Draw each field block from the original image, adjusted for the new canvas position
+        template.fieldBlocks.forEach((block) => {
+          const { top, left, width, height } = block;
+
+          // Calculate the new position relative to the field blocks canvas
+          const newLeft = left - minLeft;
+          const newTop = top - minTop;
+
+          // Draw the region from the original image onto the field blocks canvas
+          fieldBlocksCtx.drawImage(
+            originalImage,
+            left,
+            top,
+            width,
+            height,
+            newLeft,
+            newTop,
+            width,
+            height
+          );
+        });
+
+        resolve(fieldBlocksCanvas.toDataURL("image/png"));
+      };
+
+      originalImage.src = originalDataURL;
+    });
+  };
 
   // Detect if we're in a webview
   useEffect(() => {
@@ -376,12 +447,19 @@ export const CameraScanner: React.FC = () => {
         realHeight
       );
 
-      // Capture the current canvas state before stopping the camera
+      // Store canvas image, original processed image, and field blocks image
       if (canvasRef.current && !capturedImage) {
         const canvasDataURL = canvasRef.current.toDataURL("image/png");
-        setCapturedImage(canvasDataURL);
+        const fieldBlocksImage = await generateFieldBlocksImage(
+          result.originalDataURL,
+          result.examType
+        );
+        setCapturedImage({
+          canvasDataURL,
+          fieldBlocksImage,
+        });
       }
-      
+
       // Update refs immediately
       examResultsRef.current = result.examResults;
       setExamResults(result.examResults);
@@ -490,13 +568,24 @@ export const CameraScanner: React.FC = () => {
         playsInline
       />
 
-      {/* Captured image overlay - shows when camera is stopped */}
+      {/* Captured images overlay - shows when camera is stopped */}
       {capturedImage && examResults && (
-        <img
-          src={capturedImage}
-          alt="Captured exam"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        <>
+          {/* Canvas image as background */}
+          <img
+            src={capturedImage.canvasDataURL}
+            alt="Canvas capture"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Field blocks image on top */}
+          <div className="absolute inset-0 px-4 bg-black/30 py-safe flex items-start">
+            <img
+              src={capturedImage.fieldBlocksImage}
+              alt="Field blocks from exam template"
+              className="max-w-md mx-auto absolute inset-4 w-full h-auto object-cover rounded-2xl"
+            />
+          </div>
+        </>
       )}
 
       {/* Canvas for OpenCV processing - also covers full viewport */}
@@ -514,11 +603,13 @@ export const CameraScanner: React.FC = () => {
       />
 
       {/* Camera Overlay - positioned within safe area */}
-      {!examResults && <CameraOverlay
-        detections={detections}
-        isProcessing={isProcessing}
-        currentExamType={currentExamType}
-      />}
+      {!examResults && (
+        <CameraOverlay
+          detections={detections}
+          isProcessing={isProcessing}
+          currentExamType={currentExamType}
+        />
+      )}
 
       {/* Results Modal - positioned within safe area */}
       {!!examResults && !isWebView && (
