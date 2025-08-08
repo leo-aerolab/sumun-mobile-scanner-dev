@@ -582,7 +582,7 @@ export const CameraScanner: React.FC = () => {
             <img
               src={capturedImage.fieldBlocksImage}
               alt="Field blocks from exam template"
-              className="max-w-md max-h-2/5 mx-auto h-auto object-cover rounded-2xl mt-10"
+              className="max-w-md max-h-2/5 mx-auto h-auto object-cover rounded-2xl mt-16"
             />
           </div>
         </>
