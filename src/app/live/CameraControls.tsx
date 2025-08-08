@@ -21,7 +21,7 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
   return (
     <button
       onClick={onSwitchCamera}
-      className="absolute top-4 right-4 bg-white/50 backdrop-blur-sm text-gray-900 p-3 rounded-full z-40 hover:bg-black/70 transition-colors"
+      className="absolute top-4 right-4 bg-white/50 backdrop-blur-sm text-gray-900 p-3 rounded-full z-40 transition-colors"
       disabled={isProcessing}
       style={{
         top: "max(1rem, env(safe-area-inset-top))",
