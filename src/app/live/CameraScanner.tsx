@@ -142,13 +142,23 @@ export const CameraScanner: React.FC = () => {
       setIsWebView(true);
 
       window.addEventListener("closemodal", (event) => {
-        console.log("closemodal event received:", event);
+        console.log("event received: closemodal", event);
         handleCloseModal();
       });
 
       window.addEventListener("switchcamera", (event) => {
-        console.log("switchcamera event received:", event);
+        console.log("event received: switchcamera", event);
         switchCamera();
+      });
+
+      window.addEventListener("stopcamera", (event) => {
+        console.log("event received: stopcamera", event);
+        stopCamera();
+      });
+
+      window.addEventListener("startcamera", (event) => {
+        console.log("event received: startcamera", event);
+        startCamera(facingMode);
       });
     }
   }, []);
@@ -237,7 +247,8 @@ export const CameraScanner: React.FC = () => {
 
   // Function to switch cameras
   const switchCamera = async () => {
-    const newFacingMode = facingModeRef.current === "environment" ? "user" : "environment";
+    const newFacingMode =
+      facingModeRef.current === "environment" ? "user" : "environment";
     facingModeRef.current = newFacingMode;
     setFacingMode(newFacingMode);
     await startCamera(newFacingMode);
