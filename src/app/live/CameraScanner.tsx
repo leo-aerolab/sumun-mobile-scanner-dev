@@ -65,6 +65,7 @@ export const CameraScanner: React.FC = () => {
   const isProcessingRef = useRef(false);
   const examResultsRef = useRef<ExamResult | null>(null);
   const isDetectionActiveRef = useRef(true);
+  const facingModeRef = useRef<"user" | "environment">("environment");
 
   // Function to generate field blocks image from originalDataURL
   const generateFieldBlocksImage = async (
@@ -236,10 +237,16 @@ export const CameraScanner: React.FC = () => {
 
   // Function to switch cameras
   const switchCamera = async () => {
-    const newFacingMode = facingMode === "environment" ? "user" : "environment";
+    const newFacingMode = facingModeRef.current === "environment" ? "user" : "environment";
+    facingModeRef.current = newFacingMode;
     setFacingMode(newFacingMode);
     await startCamera(newFacingMode);
   };
+
+  // Keep facingModeRef in sync with facingMode state
+  useEffect(() => {
+    facingModeRef.current = facingMode;
+  }, [facingMode]);
 
   // Request camera access
   useEffect(() => {
