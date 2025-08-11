@@ -144,6 +144,11 @@ export const CameraScanner: React.FC = () => {
         console.log("closemodal event received:", event);
         handleCloseModal();
       });
+
+      window.addEventListener("switchcamera", (event) => {
+        console.log("switchcamera event received:", event);
+        switchCamera();
+      });
     }
   }, []);
 
@@ -595,12 +600,14 @@ export const CameraScanner: React.FC = () => {
       />
 
       {/* Camera Controls - positioned within safe area */}
-      <CameraControls
-        isMobile={isMobile}
-        isProcessing={isProcessing}
-        showControls={!examResults}
-        onSwitchCamera={switchCamera}
-      />
+      {!isWebView && (
+        <CameraControls
+          isMobile={isMobile}
+          isProcessing={isProcessing}
+          showControls={!examResults}
+          onSwitchCamera={switchCamera}
+        />
+      )}
 
       {/* Camera Overlay - positioned within safe area */}
       {!examResults && (
