@@ -93,9 +93,18 @@ export const CameraScanner: React.FC = () => {
       maxBottom = Math.max(maxBottom, block.top + block.height);
     });
 
-    // Set canvas size to match the field blocks bounding box
-    const fieldBlocksWidth = maxRight - minLeft;
-    const fieldBlocksHeight = maxBottom - minTop;
+    // Extend the bounding box by 50px to the left and top to include surrounding content
+    const paddingLeft = 90;
+    const paddingTop = 70;
+    const extraPadding = 20;
+    const extendedMinLeft = Math.max(0, minLeft - paddingLeft - extraPadding);
+    const extendedMinTop = Math.max(0, minTop - paddingTop - extraPadding);
+    const extendedMaxRight = maxRight + extraPadding;
+    const extendedMaxBottom = maxBottom + extraPadding;
+    
+    // Set canvas size to match the extended bounding box
+    const fieldBlocksWidth = extendedMaxRight - extendedMinLeft;
+    const fieldBlocksHeight = extendedMaxBottom - extendedMinTop;
     fieldBlocksCanvas.width = fieldBlocksWidth;
     fieldBlocksCanvas.height = fieldBlocksHeight;
 
@@ -105,27 +114,18 @@ export const CameraScanner: React.FC = () => {
 
     return new Promise<string>((resolve) => {
       originalImage.onload = () => {
-        // Draw each field block from the original image, adjusted for the new canvas position
-        template.fieldBlocks.forEach((block) => {
-          const { top, left, width, height } = block;
-
-          // Calculate the new position relative to the field blocks canvas
-          const newLeft = left - minLeft;
-          const newTop = top - minTop;
-
-          // Draw the region from the original image onto the field blocks canvas
-          fieldBlocksCtx.drawImage(
-            originalImage,
-            left,
-            top,
-            width,
-            height,
-            newLeft,
-            newTop,
-            width,
-            height
-          );
-        });
+        // Draw the extended region from the original image
+        fieldBlocksCtx.drawImage(
+          originalImage,
+          extendedMinLeft,
+          extendedMinTop,
+          fieldBlocksWidth,
+          fieldBlocksHeight,
+          0,
+          0,
+          fieldBlocksWidth,
+          fieldBlocksHeight
+        );
 
         resolve(fieldBlocksCanvas.toDataURL("image/png"));
       };
