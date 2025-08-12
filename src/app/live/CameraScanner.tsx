@@ -173,6 +173,7 @@ export const CameraScanner: React.FC = () => {
         window.removeEventListener("startcamera", handleStartCameraEvent);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Detect if we're on mobile
@@ -222,7 +223,7 @@ export const CameraScanner: React.FC = () => {
         resolve();
       };
 
-      const handleError = (error: Event) => {
+      const handleError = () => {
         video.removeEventListener('canplay', handleCanPlay);
         video.removeEventListener('error', handleError);
         clearTimeout(timeoutId);
@@ -319,6 +320,7 @@ export const CameraScanner: React.FC = () => {
   // Request camera access
   useEffect(() => {
     startCamera(facingMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facingMode]);
 
   // Detection loop using ArUco
@@ -652,6 +654,7 @@ export const CameraScanner: React.FC = () => {
       {capturedImage && examResults && (
         <>
           {/* Canvas image as background */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={capturedImage.canvasDataURL}
             alt="Canvas capture"
@@ -659,6 +662,7 @@ export const CameraScanner: React.FC = () => {
           />
           {/* Field blocks image on top */}
           <div className="absolute inset-0 px-6 bg-black/40 py-safe flex items-start">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={capturedImage.fieldBlocksImage}
               alt="Field blocks from exam template"
