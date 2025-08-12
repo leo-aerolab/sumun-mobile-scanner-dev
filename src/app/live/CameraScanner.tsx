@@ -141,25 +141,37 @@ export const CameraScanner: React.FC = () => {
     if (window.ReactNativeWebView) {
       setIsWebView(true);
 
-      window.addEventListener("closemodal", (event) => {
+      const handleCloseModalEvent = (event: Event) => {
         console.log("event received: closemodal", event);
         handleCloseModal();
-      });
+      };
 
-      window.addEventListener("switchcamera", (event) => {
+      const handleSwitchCameraEvent = (event: Event) => {
         console.log("event received: switchcamera", event);
         switchCamera();
-      });
+      };
 
-      window.addEventListener("stopcamera", (event) => {
+      const handleStopCameraEvent = (event: Event) => {
         console.log("event received: stopcamera", event);
         stopCamera();
-      });
+      };
 
-      window.addEventListener("startcamera", (event) => {
+      const handleStartCameraEvent = (event: Event) => {
         console.log("event received: startcamera", event);
         startCamera(facingMode);
-      });
+      };
+
+      window.addEventListener("closemodal", handleCloseModalEvent);
+      window.addEventListener("switchcamera", handleSwitchCameraEvent);
+      window.addEventListener("stopcamera", handleStopCameraEvent);
+      window.addEventListener("startcamera", handleStartCameraEvent);
+
+      return () => {
+        window.removeEventListener("closemodal", handleCloseModalEvent);
+        window.removeEventListener("switchcamera", handleSwitchCameraEvent);
+        window.removeEventListener("stopcamera", handleStopCameraEvent);
+        window.removeEventListener("startcamera", handleStartCameraEvent);
+      };
     }
   }, []);
 
