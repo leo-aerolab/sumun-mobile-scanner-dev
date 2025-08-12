@@ -206,15 +206,52 @@ export const CameraScanner: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Function to wait for video to be ready before playing
+  const waitForVideoReady = async (): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      const video = videoRef.current;
+      if (!video) {
+        reject(new Error("Video element not available"));
+        return;
+      }
+
+      const handleCanPlay = () => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('error', handleError);
+        clearTimeout(timeoutId);
+        resolve();
+      };
+
+      const handleError = (error: Event) => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('error', handleError);
+        clearTimeout(timeoutId);
+        reject(new Error('Video error'));
+      };
+
+      const timeoutId = setTimeout(() => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('error', handleError);
+        reject(new Error('Video load timeout'));
+      }, 5000);
+
+      video.addEventListener('canplay', handleCanPlay);
+      video.addEventListener('error', handleError);
+    });
+  };
+
   // Function to start camera with specific facing mode
   const startCamera = async (facing: "user" | "environment") => {
     if (!videoRef.current) return;
 
-    // Stop current stream if it exists
+    // Stop current stream if it exists and wait for it to fully stop
     if (videoRef.current.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
       tracks.forEach((track) => track.stop());
       videoRef.current.srcObject = null;
+      
+      // Wait a bit for the stream to fully stop before starting a new one
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     try {
@@ -228,7 +265,11 @@ export const CameraScanner: React.FC = () => {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // Handle play promise to avoid interruption errors
+        
+        // Wait for the video to be ready before attempting to play
+        await waitForVideoReady();
+
+        // Now safely play the video
         try {
           await videoRef.current.play();
         } catch (playError) {
@@ -244,7 +285,11 @@ export const CameraScanner: React.FC = () => {
         });
         if (videoRef.current) {
           videoRef.current.srcObject = fallbackStream;
-          // Handle play promise to avoid interruption errors
+          
+          // Wait for the video to be ready before attempting to play
+          await waitForVideoReady();
+
+          // Now safely play the video
           try {
             await videoRef.current.play();
           } catch (playError) {
