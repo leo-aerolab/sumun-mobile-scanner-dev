@@ -102,7 +102,7 @@ export const CameraScanner: React.FC = () => {
     const extendedMinTop = Math.max(0, minTop - paddingTop - extraPadding);
     const extendedMaxRight = maxRight + extraPadding;
     const extendedMaxBottom = maxBottom + extraPadding;
-    
+
     // Set canvas size to match the extended bounding box
     const fieldBlocksWidth = extendedMaxRight - extendedMinLeft;
     const fieldBlocksHeight = extendedMaxBottom - extendedMinTop;
@@ -218,27 +218,27 @@ export const CameraScanner: React.FC = () => {
       }
 
       const handleCanPlay = () => {
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('error', handleError);
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("error", handleError);
         clearTimeout(timeoutId);
         resolve();
       };
 
       const handleError = () => {
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('error', handleError);
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("error", handleError);
         clearTimeout(timeoutId);
-        reject(new Error('Video error'));
+        reject(new Error("Video error"));
       };
 
       const timeoutId = setTimeout(() => {
-        video.removeEventListener('canplay', handleCanPlay);
-        video.removeEventListener('error', handleError);
-        reject(new Error('Video load timeout'));
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("error", handleError);
+        reject(new Error("Video load timeout"));
       }, 5000);
 
-      video.addEventListener('canplay', handleCanPlay);
-      video.addEventListener('error', handleError);
+      video.addEventListener("canplay", handleCanPlay);
+      video.addEventListener("error", handleError);
     });
   };
 
@@ -251,9 +251,9 @@ export const CameraScanner: React.FC = () => {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
       tracks.forEach((track) => track.stop());
       videoRef.current.srcObject = null;
-      
+
       // Wait a bit for the stream to fully stop before starting a new one
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     try {
@@ -267,7 +267,7 @@ export const CameraScanner: React.FC = () => {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        
+
         // Wait for the video to be ready before attempting to play
         await waitForVideoReady();
 
@@ -287,7 +287,7 @@ export const CameraScanner: React.FC = () => {
         });
         if (videoRef.current) {
           videoRef.current.srcObject = fallbackStream;
-          
+
           // Wait for the video to be ready before attempting to play
           await waitForVideoReady();
 
@@ -666,13 +666,18 @@ export const CameraScanner: React.FC = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* Field blocks image on top */}
-          <div className="absolute inset-0 px-6 bg-black/40 py-safe flex items-start">
+          <div className="absolute inset-0 px-6 bg-black/40 py-safe flex items-start flex-col">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={capturedImage.fieldBlocksImage}
-              alt="Field blocks from exam template"
-              className="max-w-md max-h-2/5 mx-auto h-auto object-cover rounded-2xl mt-16"
-            />
+            <div className="flex flex-1/2 justify-center items-end w-full h-1/2">
+              <img
+                src={capturedImage.fieldBlocksImage}
+                alt="Field blocks from exam template"
+                className="max-w-md max-h-4/5 mx-auto h-auto object-cover rounded-2xl"
+              />
+            </div>
+            <div className="flex flex-1/2 h-1/2">
+              {/* spacing */}
+            </div>
           </div>
         </>
       )}
