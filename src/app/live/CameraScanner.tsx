@@ -666,7 +666,7 @@ export const CameraScanner: React.FC = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* Field blocks image on top */}
-          <div className="absolute inset-0 px-6 bg-black/40 flex items-start flex-col pt-6">
+          <div className="absolute inset-0 px-6 bg-black/50 flex items-start flex-col pt-6">
             <div className="flex flex-1/2 justify-center items-end w-full h-[55%]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
