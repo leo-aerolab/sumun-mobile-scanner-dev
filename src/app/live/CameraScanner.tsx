@@ -26,12 +26,13 @@ import { ExamResult } from "./examScoring";
 import { getExamTemplate } from "./examTemplateManager";
 
 function sendMessageToWebView(type: string, data: any) {
+  console.log("Sending message to webview:", type, data);
+
   if (window.ReactNativeWebView) {
     const message = {
       type,
       ...data,
     };
-    console.log("Sending message to webview:", message);
     window.ReactNativeWebView.postMessage(JSON.stringify(message));
   }
 }
@@ -546,7 +547,11 @@ export const CameraScanner: React.FC = () => {
       examResultsRef.current = result.examResults;
       setExamResults(result.examResults);
 
-      sendMessageToWebView("examResults", { examResults: result.examResults });
+      sendMessageToWebView("examResults", {
+        examResults: result.examResults,
+        examType: result.examType.name,
+        examId: result.examType.id,
+      });
 
       // Play success sound for successful scan
       playSuccess();
