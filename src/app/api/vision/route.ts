@@ -27,7 +27,7 @@ The student is from a latin-american, spanish-speaking country
 Rules:
 - Only extract text from the specified fields.
 - The labels for the fields are below the handwritten area.
-- The labels are: "NOMBRE", "APELLIDO", "ID DEL ALUMNO", "NÚMERO DE EVALUACIÓN".
+- The labels are: "NOMBRE", "APELLIDO".
 - The confidence field goes from 0.0 to 1.0, where 0.0 is completely unreadable and 1.0 is completely readable.
 - Do not include any explanation, just the JSON object
 - Focus on handwritten text recognition`,
@@ -37,7 +37,7 @@ Rules:
           content: [
             {
               type: "text",
-              text: `Extract the students info (first_name, last_name, student_id, evaluation_number)`,
+              text: `Extract the students info (first_name, last_name)`,
             },
             {
               type: "image_url",

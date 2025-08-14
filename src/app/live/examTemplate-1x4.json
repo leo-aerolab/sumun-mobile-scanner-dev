@@ -39,17 +39,17 @@
     }
   ],
   "visionBlock": {
-    "top": 150,
+    "top": 95,
     "left": 100,
     "width": 800,
-    "height": 800,
-    "extract": ["first_name", "last_name", "student_id", "evaluation_number"]
+    "height": 400,
+    "extract": ["first_name", "last_name"]
   },
   "fieldBlocks": [
     {
       "name": "Questions 1-5",
-      "top": 1055,
-      "left": 367,
+      "top": 1020,
+      "left": 370,
       "width": 365,
       "height": 435,
       "numOptions": 4,

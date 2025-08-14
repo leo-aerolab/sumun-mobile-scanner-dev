@@ -68,7 +68,6 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
               </svg>
               <div>
                 <div className="text-gray-900 font-medium leading-tight">{personalInfo.first_name} {personalInfo.last_name}</div>
-                <div className="text-gray-400 text-sm leading-tight">ID {personalInfo.student_id}</div>
               </div>
             </div>
           )}
