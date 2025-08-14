@@ -56,10 +56,10 @@
       "numQuestions": 5,
       "questions": [
         { "name": "Question 1", "correctAnswer": "A", "points": 1 },
-        { "name": "Question 2", "correctAnswer": "B", "points": 1 },
-        { "name": "Question 3", "correctAnswer": "C", "points": 1 },
-        { "name": "Question 4", "correctAnswer": "D", "points": 1 },
-        { "name": "Question 5", "correctAnswer": "A", "points": 1 }
+        { "name": "Question 2", "correctAnswer": "A", "points": 1 },
+        { "name": "Question 3", "correctAnswer": "B", "points": 1 },
+        { "name": "Question 4", "correctAnswer": "C", "points": 1 },
+        { "name": "Question 5", "correctAnswer": "D", "points": 1 }
       ]
     }
   ]
