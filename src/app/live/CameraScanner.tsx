@@ -666,8 +666,8 @@ export const CameraScanner: React.FC = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* Field blocks image on top */}
-          <div className="absolute inset-0 px-6 bg-black/40 py-safe flex items-start flex-col">
-            <div className="flex flex-1/2 justify-center items-end w-full h-1/2">
+          <div className="absolute inset-0 px-6 bg-black/40 flex items-start flex-col">
+            <div className="flex flex-1/2 justify-center items-end w-full h-7/12">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={capturedImage.fieldBlocksImage}
@@ -675,7 +675,7 @@ export const CameraScanner: React.FC = () => {
                 className="max-w-md max-h-4/5 mx-auto h-auto object-cover rounded-2xl"
               />
             </div>
-            <div className="flex flex-1/2 h-1/2">
+            <div className="flex flex-1/2 h-5/12">
               {/* spacing */}
             </div>
           </div>
