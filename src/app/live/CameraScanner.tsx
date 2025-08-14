@@ -666,12 +666,12 @@ export const CameraScanner: React.FC = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* Field blocks image on top */}
-          <div className="absolute inset-0 px-6 bg-black/40 flex items-start">
+          <div className="absolute inset-0 px-6 bg-black/40 py-safe flex items-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={capturedImage.fieldBlocksImage}
               alt="Field blocks from exam template"
-              className="max-w-md max-h-2/5 mx-auto h-auto object-cover rounded-2xl mt-20"
+              className="max-w-md max-h-2/5 mx-auto h-auto object-cover rounded-2xl mt-16"
             />
           </div>
         </>
