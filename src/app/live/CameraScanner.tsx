@@ -180,7 +180,6 @@ export const CameraScanner: React.FC = () => {
             left,
             width,
             height,
-            numOptions,
             numQuestions,
             gapY,
           } = block;
