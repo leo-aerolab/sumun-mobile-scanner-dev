@@ -688,8 +688,17 @@ export const CameraScanner: React.FC = () => {
       examResultsRef.current = result.examResults;
       setExamResults(result.examResults);
 
+      // Create exam results without bubbles for webview
+      const examResultsWithoutBubbles = {
+        ...result.examResults,
+        questions: result.examResults.questions.map(question => ({
+          ...question,
+          bubbles: undefined, // Exclude bubbles from webview data
+        }))
+      };
+
       sendMessageToWebView("examResults", {
-        examResults: result.examResults,
+        examResults: examResultsWithoutBubbles,
         examType: result.examType.name,
         examId: result.examType.id,
         illegibleRowImages,
