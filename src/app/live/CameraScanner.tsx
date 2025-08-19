@@ -51,6 +51,7 @@ export const CameraScanner: React.FC = () => {
   const [capturedImage, setCapturedImage] = useState<{
     canvasDataURL: string;
     fieldBlocksImage: string;
+    illegibleRowImages?: { [questionName: string]: string };
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
@@ -133,6 +134,134 @@ export const CameraScanner: React.FC = () => {
 
       originalImage.src = originalDataURL;
     });
+  };
+
+  // Function to generate row images for questions (illegible by default, or all if specified)
+  const generateQuestionRowImages = async (
+    fieldBlocksImageDataURL: string,
+    examResults: ExamResult,
+    examType: any,
+    includeAllQuestions: boolean = false
+  ): Promise<{ [questionName: string]: string }> => {
+    const template = getExamTemplate(examType);
+    const rowImages: { [questionName: string]: string } = {};
+
+    // Create an image from the fieldBlocksImageDataURL
+    const fieldBlocksImage = new Image();
+    fieldBlocksImage.crossOrigin = "anonymous";
+
+    return new Promise<{ [questionName: string]: string }>((resolve) => {
+      fieldBlocksImage.onload = () => {
+        // Calculate the bounding box used for fieldBlocks image (same logic as generateFieldBlocksImage)
+        let minLeft = Infinity;
+        let minTop = Infinity;
+        let maxRight = -Infinity;
+        let maxBottom = -Infinity;
+
+        template.fieldBlocks.forEach((block) => {
+          minLeft = Math.min(minLeft, block.left);
+          minTop = Math.min(minTop, block.top);
+          maxRight = Math.max(maxRight, block.left + block.width);
+          maxBottom = Math.max(maxBottom, block.top + block.height);
+        });
+
+        const paddingLeft = 90;
+        const paddingTop = 70;
+        const extraPadding = 20;
+        const extendedMinLeft = Math.max(0, minLeft - paddingLeft - extraPadding);
+        const extendedMinTop = Math.max(0, minTop - paddingTop - extraPadding);
+
+        // Process each question
+        let questionIndex = 0;
+
+        for (const block of template.fieldBlocks) {
+          const {
+            top,
+            left,
+            width,
+            height,
+            numOptions,
+            numQuestions,
+            gapY,
+          } = block;
+
+          // Calculate row height
+          const cellH = (height - (gapY || 0) * (numQuestions - 1)) / numQuestions;
+
+          for (let q = 0; q < numQuestions; q++) {
+            const questionResult = examResults.questions[questionIndex];
+            
+            // Check if this question should be included
+            // Only include illegible answers (low confidence or "?"), not incomplete/empty answers
+            const isIllegible = questionResult && (
+              (questionResult.confidence > 0 && questionResult.confidence < 0.3) || 
+              questionResult.selectedAnswer === "?"
+            );
+
+            const shouldInclude = includeAllQuestions || isIllegible;
+
+            if (shouldInclude && questionResult) {
+              // Calculate row position in original image coordinates
+              const rowTop = top + q * cellH + q * (gapY || 0);
+              const rowHeight = cellH;
+              
+              // Add some padding to the row to include context
+              const rowPadding = 10;
+              const adjustedRowTop = Math.max(0, rowTop - rowPadding);
+              const adjustedRowHeight = rowHeight + (2 * rowPadding);
+              
+              // Convert to fieldBlocks image coordinates (relative to the cropped region)
+              const rowTopInFieldBlocks = adjustedRowTop - extendedMinTop;
+              const rowLeftInFieldBlocks = left - paddingLeft - extendedMinLeft;
+              const rowWidthInFieldBlocks = width + (paddingLeft * 2);
+
+              // Create canvas for this row
+              const rowCanvas = document.createElement("canvas");
+              const rowCtx = rowCanvas.getContext("2d");
+              
+              if (rowCtx && rowTopInFieldBlocks >= 0 && rowLeftInFieldBlocks >= 0) {
+                rowCanvas.width = rowWidthInFieldBlocks;
+                rowCanvas.height = adjustedRowHeight;
+
+                // Extract the row from the fieldBlocks image
+                rowCtx.drawImage(
+                  fieldBlocksImage,
+                  Math.max(0, rowLeftInFieldBlocks),
+                  Math.max(0, rowTopInFieldBlocks),
+                  Math.min(rowWidthInFieldBlocks, fieldBlocksImage.width - rowLeftInFieldBlocks),
+                  Math.min(adjustedRowHeight, fieldBlocksImage.height - rowTopInFieldBlocks),
+                  0,
+                  0,
+                  rowCanvas.width,
+                  rowCanvas.height
+                );
+
+                // Store the row image
+                rowImages[questionResult.questionName] = rowCanvas.toDataURL("image/png");
+                const questionType = isIllegible ? "illegible" : "readable";
+                console.log(`Generated row image for ${questionType} question: ${questionResult.questionName}`);
+                console.log(rowCanvas.toDataURL("image/png"));
+              }
+            }
+
+            questionIndex++;
+          }
+        }
+
+        resolve(rowImages);
+      };
+
+      fieldBlocksImage.src = fieldBlocksImageDataURL;
+    });
+  };
+
+  // Helper function for backward compatibility
+  const generateIllegibleRowImages = async (
+    fieldBlocksImageDataURL: string,
+    examResults: ExamResult,
+    examType: any
+  ): Promise<{ [questionName: string]: string }> => {
+    return generateQuestionRowImages(fieldBlocksImageDataURL, examResults, examType, false);
   };
 
   // Detect if we're in a webview
@@ -531,15 +660,28 @@ export const CameraScanner: React.FC = () => {
       );
 
       // Store canvas image, original processed image, and field blocks image
+      let canvasDataURL = "";
+      let fieldBlocksImage = "";
+      let illegibleRowImages: { [questionName: string]: string } = {};
+
       if (canvasRef.current && !capturedImage) {
-        const canvasDataURL = canvasRef.current.toDataURL("image/png");
-        const fieldBlocksImage = await generateFieldBlocksImage(
+        canvasDataURL = canvasRef.current.toDataURL("image/png");
+        fieldBlocksImage = await generateFieldBlocksImage(
           result.originalDataURL,
           result.examType
         );
+
+        // Generate row images for illegible questions
+        illegibleRowImages = await generateIllegibleRowImages(
+          fieldBlocksImage,
+          result.examResults,
+          result.examType
+        );
+
         setCapturedImage({
           canvasDataURL,
           fieldBlocksImage,
+          illegibleRowImages,
         });
       }
 
@@ -551,6 +693,7 @@ export const CameraScanner: React.FC = () => {
         examResults: result.examResults,
         examType: result.examType.name,
         examId: result.examType.id,
+        illegibleRowImages,
       });
 
       // Play success sound for successful scan
@@ -592,6 +735,18 @@ export const CameraScanner: React.FC = () => {
           }`
         );
       });
+
+      // Log illegible questions and their row images
+      const illegibleQuestions = result.examResults.questions.filter(
+        (q) => (q.confidence > 0 && q.confidence < 0.3) || q.selectedAnswer === "?"
+      );
+      if (illegibleQuestions.length > 0) {
+        console.log("🔍 Illegible Questions Detected:");
+        illegibleQuestions.forEach((q) => {
+          console.log(`- ${q.questionName}: confidence=${Math.round(q.confidence * 100)}%, answer="${q.selectedAnswer}"`);
+        });
+        console.log(`📸 Generated ${Object.keys(illegibleRowImages).length} row images for illegible questions`);
+      }
 
       // Wait until openai is done parsing the personal info
       result.personalInfoPromise.then((personalInfo) => {
