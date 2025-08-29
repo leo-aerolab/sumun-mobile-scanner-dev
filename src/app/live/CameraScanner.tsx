@@ -86,6 +86,7 @@ export const CameraScanner: React.FC = () => {
     null
   );
   const [isWebView, setIsWebView] = useState(false);
+  const [examTypeMismatchError, setExamTypeMismatchError] = useState<string | null>(null);
 
   // Refs for immediate state tracking to avoid closure stale state
   const isProcessingRef = useRef(false);
@@ -739,9 +740,11 @@ export const CameraScanner: React.FC = () => {
 
       // Validate that detected exam type matches the expected template from config
       if (configToUse.templateId !== detectedExamType.id) {
-        throw new Error(
-          `Exam type mismatch: Expected template ${configToUse.templateId} but detected ${detectedExamType.id}. Please ensure the correct exam is being scanned.`
-        );
+        const errorMessage = `Wrong exam type detected! You're scanning a ${detectedExamType.name} (${detectedExamType.id}) but the app expects a ${configToUse.examName} (${configToUse.templateId}). Please scan the correct exam.`;
+        console.error(errorMessage);
+        setExamTypeMismatchError(errorMessage);
+        setIsProcessing(false);
+        return;
       }
 
       console.log(
@@ -907,6 +910,7 @@ export const CameraScanner: React.FC = () => {
     setPersonalInfo(null);
     setCurrentExamType(null);
     setCapturedImage(null);
+    setExamTypeMismatchError(null);
   };
 
   // Function to stop the camera
@@ -976,7 +980,7 @@ export const CameraScanner: React.FC = () => {
       />
 
       {/* Camera Controls - positioned within safe area */}
-      {!isWebView && (
+      {!isWebView && !examTypeMismatchError && (
         <CameraControls
           isMobile={isMobile}
           isProcessing={isProcessing}
@@ -986,7 +990,7 @@ export const CameraScanner: React.FC = () => {
       )}
 
       {/* Camera Overlay - positioned within safe area */}
-      {!examResults && (
+      {!examResults && !examTypeMismatchError && (
         <CameraOverlay
           detections={detections}
           isProcessing={isProcessing}
@@ -1001,6 +1005,43 @@ export const CameraScanner: React.FC = () => {
           personalInfo={personalInfo}
           onClose={handleCloseModal}
         />
+      )}
+
+      {/* Exam Type Mismatch Error Modal */}
+      {examTypeMismatchError && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full text-center">
+            <div className="mb-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">
+                Wrong Exam Type
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {examTypeMismatchError}
+              </p>
+            </div>
+            <button
+              onClick={handleCloseModal}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
