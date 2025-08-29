@@ -47,22 +47,15 @@ interface ExamQuestion {
 <CameraScanner examConfigId="my-exam-1" />
 ```
 
-### Config Sources
+### Workflow
 
-The scanner can get exam configs from multiple sources:
+The scanner follows a specific workflow:
 
-1. **Webview Injection** (Primary): Config injected by parent webview via `window.ReactNativeWebView.injectedObjectJson()`
-2. **Dynamic Selection**: Automatically finds matching config for detected exam type
-3. **Mock Fallback**: Uses mock configs when no injection or dynamic match available
-
-### Dynamic Config Selection
-
-The scanner automatically selects the appropriate exam config based on the detected exam type:
-
-1. **Detects exam type** from ArUco markers
-2. **Finds matching config** for the detected template
-3. **Falls back** to injected/webview config if no dynamic match found
-4. **Validates** the config against the template
+1. **User selects test** on the native side
+2. **Native app injects** exam config with questions/answers and template ID
+3. **Scanner validates** that detected exam type matches expected template
+4. **Scanner uses** injected questions/answers, not template questions
+5. **Fallback** to mock configs for development/testing
 
 ### Mock Configs
 
@@ -76,11 +69,11 @@ The system includes mock exam configurations for testing:
 When running in a React Native WebView, the scanner expects the exam config to be injected via:
 
 ```javascript
-// In React Native
+// In React Native - after user selects a test
 const examConfig = {
   examId: "my-exam-1",
   examName: "Mathematics Final",
-  templateId: "sumun-exam-1x1",
+  templateId: "sumun-exam-1x1", // Must match the actual exam template
   questions: [
     { name: "Question 1", correctAnswer: "A", points: 1 },
     // ... more questions
@@ -94,6 +87,8 @@ webviewRef.current.injectJavaScript(`
   });
 `);
 ```
+
+**Important**: The `templateId` in the injected config must match the actual exam template being scanned.
 
 ### Validation
 

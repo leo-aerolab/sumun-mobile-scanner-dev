@@ -25,7 +25,7 @@ import { ExamPersonalInfoType } from "../api/vision/libs";
 import { ExamResult } from "./examScoring";
 import { getExamTemplate } from "./examTemplateManager";
 import { ExamConfig } from "./types";
-import { getExamConfig, getExamConfigByTemplateId, validateExamConfig } from "./examConfigs";
+import { getExamConfig, validateExamConfig } from "./examConfigs";
 
 function sendMessageToWebView(type: string, data: any) {
   console.log("Sending message to webview:", type, data);
@@ -96,6 +96,7 @@ export const CameraScanner: React.FC = () => {
   const examResultsRef = useRef<ExamResult | null>(null);
   const isDetectionActiveRef = useRef(true);
   const facingModeRef = useRef<"user" | "environment">("environment");
+  const examConfigRef = useRef<ExamConfig | null>(null);
 
   // Load exam config on component mount
   useEffect(() => {
@@ -110,7 +111,7 @@ export const CameraScanner: React.FC = () => {
         questionCount: injectedConfig.questions.length
       });
       setExamConfig(injectedConfig);
-      alert(JSON.stringify(injectedConfig));
+      examConfigRef.current = injectedConfig;
     } else {
       const examConfigId = "mock-microtest-local";
       // Fallback to mock config
@@ -127,7 +128,8 @@ export const CameraScanner: React.FC = () => {
         questionCount: config.questions.length
       });
 
-      setExamConfig(config);
+              setExamConfig(config);
+        examConfigRef.current = config;
     }
   }, []);
 
@@ -718,21 +720,18 @@ export const CameraScanner: React.FC = () => {
         throw new Error("Could not identify exam type from markers");
       }
 
-      // Try to get config for the detected exam type first, fallback to injected/prop config
-      let configToUse: ExamConfig | null = examConfig;
-      const dynamicConfig = getExamConfigByTemplateId(detectedExamType.id);
-      
-      if (dynamicConfig) {
-        console.log(`🎯 Using dynamic config for detected exam type: ${detectedExamType.id}`);
-        configToUse = dynamicConfig;
-      } else if (examConfig && examConfig.templateId !== detectedExamType.id) {
-        console.warn(`⚠️ Exam config template (${examConfig.templateId}) doesn't match detected exam type (${detectedExamType.id})`);
-        console.warn(`📋 Using provided config: ${examConfig.examId}`);
+      // Get exam config from ref to avoid race conditions
+      const configToUse = examConfigRef.current;
+      if (!configToUse) {
+        throw new Error("No exam config available. Please ensure exam config is injected from native side or use mock config for development.");
       }
 
-      if (!configToUse) {
-        throw new Error(`No exam config found for template: ${detectedExamType.id}. Please provide a config via webview injection or mock configs.`);
+      // Validate that detected exam type matches the expected template from config
+      if (configToUse.templateId !== detectedExamType.id) {
+        throw new Error(`Exam type mismatch: Expected template ${configToUse.templateId} but detected ${detectedExamType.id}. Please ensure the correct exam is being scanned.`);
       }
+
+      console.log(`✅ Exam type validation passed: ${detectedExamType.id} matches expected template ${configToUse.templateId}`);
 
       // Validate the exam config
       const validation = validateExamConfig(configToUse);
@@ -813,7 +812,7 @@ export const CameraScanner: React.FC = () => {
         templateId: result.examType.id,
         examConfigId: result.examConfig.examId,
         examConfigName: result.examConfig.examName,
-        configSource: configToUse === examConfig ? "injected/webview" : "dynamic/mock",
+        configSource: "injected/webview",
         markerSignature: result.examType.markerIds.join("-"),
         questionsProcessed: result.examResults.questions.length,
         totalScore: `${result.examResults.pointsAchieved}/${result.examResults.totalPoints}`,
