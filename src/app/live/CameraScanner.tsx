@@ -741,6 +741,7 @@ export const CameraScanner: React.FC = () => {
       // Validate that detected exam type matches the expected template from config
       if (configToUse.templateId !== detectedExamType.id) {
         const errorMessage = `Wrong exam type detected! You're scanning a ${detectedExamType.name} (${detectedExamType.id}) but the app expects a ${configToUse.examName} (${configToUse.templateId}). Please scan the correct exam.`;
+        sendMessageToWebView("errorMessage", { errorMessage });
         console.error(errorMessage);
         setExamTypeMismatchError(errorMessage);
         setIsProcessing(false);
