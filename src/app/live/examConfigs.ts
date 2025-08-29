@@ -25,8 +25,8 @@ export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
     examName: "Mock Microtest (Local)",
     templateId: "sumun-exam-1x4",
     questions: [
-      { name: "Science Q1", correctAnswer: "A", points: 1 },
-      { name: "Science Q2", correctAnswer: "A", points: 1 },
+      { name: "Science Q1", correctAnswer: "B", points: 1 },
+      { name: "Science Q2", correctAnswer: "B", points: 1 },
       { name: "Science Q3", correctAnswer: "B", points: 1 },
       { name: "Science Q4", correctAnswer: "C", points: 1 },
       { name: "Science Q5", correctAnswer: "D", points: 1 },
