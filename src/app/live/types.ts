@@ -33,3 +33,17 @@ export interface ExamTemplate {
     extract: string[];
   };
 }
+
+// New exam config interface for questions/answers
+export interface ExamQuestion {
+  name: string;
+  correctAnswer: string;
+  points: number;
+}
+
+export interface ExamConfig {
+  examId: string;
+  examName: string;
+  templateId: string; // References the template to use
+  questions: ExamQuestion[];
+}

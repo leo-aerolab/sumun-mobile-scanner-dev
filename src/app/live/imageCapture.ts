@@ -8,7 +8,7 @@ import {
   Detection,
   organizeMarkers,
 } from "./markerDetection";
-import { ExamTemplate } from "./types";
+import { ExamTemplate, ExamConfig } from "./types";
 import { identifyExamType } from "./examSignature";
 import { getExamTemplate, validateTemplate, getTemplateSummary } from "./examTemplateManager";
 
@@ -19,12 +19,14 @@ export interface CaptureResult {
   personalInfoPromise: Promise<ExamPersonalInfoType | null>;
   examTemplate: ExamTemplate;
   examType: import("./examSignature").ExamSignature;
+  examConfig: ExamConfig;
 }
 
 export const captureAndProcessImage = async (
   cv: CV,
   canvas: HTMLCanvasElement,
   detections: Detection[],
+  examConfig: ExamConfig,
   realWidth: number = 1000,
   realHeight: number = 1520
 ): Promise<CaptureResult> => {
@@ -54,6 +56,15 @@ export const captureAndProcessImage = async (
     templateSummary,
     validation: templateValidation
   });
+  
+  // Log exam config being used
+  console.log("📝 Using exam config:", {
+    examId: examConfig.examId,
+    examName: examConfig.examName,
+    templateId: examConfig.templateId,
+    questionCount: examConfig.questions.length,
+  });
+  
   const src = cv.imread(canvas);
 
   // Organize the 6 markers into a grid
@@ -110,7 +121,7 @@ export const captureAndProcessImage = async (
 
   // Preprocess for OCR
   const processedPageMat = preprocessForMorphology(cv, rawPageMat);
-  const examResults = await scoreExam(cv, processedPageMat, examTemplate);
+  const examResults = await scoreExam(cv, processedPageMat, examTemplate, examConfig);
 
   console.log("Exam results:", examResults);
   const personalInfoPromise = readPersonalInfo(cv, rawPageMat, examTemplate);
@@ -138,5 +149,6 @@ export const captureAndProcessImage = async (
     personalInfoPromise,
     examTemplate,
     examType,
+    examConfig,
   };
 };

@@ -1,6 +1,6 @@
 import { CV, Mat } from "@techstark/opencv-js";
 
-import { ExamTemplate } from "./types";
+import { ExamTemplate, ExamConfig } from "./types";
 
 const BUBBLE_PADDING = 0.2;
 
@@ -84,6 +84,7 @@ export const evaluateBubble = (
  * @param cv        – OpenCV instance
  * @param matGray   – *processed* exam image (grayscale, same size as template.pageDimensions)
  * @param template  – examTemplate (fieldBlocks, etc.)
+ * @param examConfig – exam configuration with questions/answers
  * @param markThresh– proportion of black pixels that counts as a "filled-in" bubble
  *
  * @returns ExamResult with complete question details including scores and correct answers
@@ -92,6 +93,7 @@ export const scoreExam = async (
   cv: CV,
   matGray: Mat,
   template: ExamTemplate,
+  examConfig: ExamConfig,
   markThresh = 0.3
 ): Promise<ExamResult> => {
   const [tplW, tplH] = template.pageDimensions;
@@ -105,6 +107,7 @@ export const scoreExam = async (
   const questions: QuestionResult[] = [];
   let totalPoints = 0;
   let totalPointsAchieved = 0;
+  let questionIndex = 0; // Global question index across all blocks
 
   for (const block of template.fieldBlocks) {
     const {
@@ -114,7 +117,6 @@ export const scoreExam = async (
       height,
       numOptions,
       numQuestions,
-      questions: templateQuestions,
       gapX,
       gapY,
     } = block;
@@ -197,12 +199,11 @@ export const scoreExam = async (
         }
       }
 
-      // Get question details from template
-      const questionTemplate = templateQuestions && templateQuestions[q];
-      const questionName =
-        questionTemplate?.name || `Q${block.name} - ${q + 1}`;
-      const correctAnswer = questionTemplate?.correctAnswer || "";
-      const answerPoints = questionTemplate?.points || 1;
+      // Get question details from exam config instead of template
+      const questionConfig = examConfig.questions[questionIndex];
+      const questionName = questionConfig?.name || `Q${questionIndex + 1}`;
+      const correctAnswer = questionConfig?.correctAnswer || "";
+      const answerPoints = questionConfig?.points || 1;
 
       // Calculate points achieved
       const isCorrect = selectedAnswer === correctAnswer;
@@ -224,6 +225,7 @@ export const scoreExam = async (
       };
 
       questions.push(questionResult);
+      questionIndex++;
     }
   }
 
