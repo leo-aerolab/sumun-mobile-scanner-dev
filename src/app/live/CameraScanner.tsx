@@ -358,16 +358,23 @@ export const CameraScanner: React.FC = () => {
         startCamera(facingMode);
       };
 
+      const handlestartProcessingEvent = (event: Event) => {
+        console.log("event received: startprocessing", event);
+        setIsProcessing(true);
+      };
+
       window.addEventListener("closemodal", handleCloseModalEvent);
       window.addEventListener("switchcamera", handleSwitchCameraEvent);
       window.addEventListener("stopcamera", handleStopCameraEvent);
       window.addEventListener("startcamera", handleStartCameraEvent);
+      window.addEventListener("startprocessing", handlestartProcessingEvent);
 
       return () => {
         window.removeEventListener("closemodal", handleCloseModalEvent);
         window.removeEventListener("switchcamera", handleSwitchCameraEvent);
         window.removeEventListener("stopcamera", handleStopCameraEvent);
         window.removeEventListener("startcamera", handleStartCameraEvent);
+        window.removeEventListener("startprocessing", handlestartProcessingEvent);
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
