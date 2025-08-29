@@ -39,49 +39,22 @@ function sendMessageToWebView(type: string, data: any) {
   }
 }
 
-// Cache for injected object to avoid multiple calls
-let injectedObjectCache: ExamConfig | null = null;
-let lastInjectedObjectString: string | null = null;
-
 function getInjectedObject(): ExamConfig | null {
   if (window.ReactNativeWebView) {
     try {
       const injectedObject = window.ReactNativeWebView.injectedObjectJson();
       if (!injectedObject) {
-        console.log("📱 No injected object found in webview");
-        injectedObjectCache = null;
-        lastInjectedObjectString = null;
         return null;
-      }
-
-      // Check if the injected object has changed
-      if (injectedObject === lastInjectedObjectString && injectedObjectCache) {
-        console.log("📱 Using cached injected object");
-        return injectedObjectCache;
       }
 
       const parsed = JSON.parse(injectedObject);
       if (!parsed.examConfig) {
-        console.log("📱 No examConfig found in injected object");
-        injectedObjectCache = null;
-        lastInjectedObjectString = null;
         return null;
       }
 
-      // Update cache
-      injectedObjectCache = parsed.examConfig;
-      lastInjectedObjectString = injectedObject;
-
-      console.log("📱 Successfully loaded exam config from webview injection:", {
-        examId: parsed.examConfig.examId,
-        examName: parsed.examConfig.examName,
-        templateId: parsed.examConfig.templateId
-      });
       return parsed.examConfig;
     } catch (error) {
       console.error("📱 Error parsing injected object:", error);
-      injectedObjectCache = null;
-      lastInjectedObjectString = null;
       return null;
     }
   }
@@ -128,12 +101,6 @@ export const CameraScanner: React.FC = () => {
       const injectedConfig = getInjectedObject();
 
       if (injectedConfig) {
-        console.log("📋 Loaded exam config from webview:", {
-          examId: injectedConfig.examId,
-          examName: injectedConfig.examName,
-          templateId: injectedConfig.templateId,
-          questionCount: injectedConfig.questions.length,
-        });
         alert(JSON.stringify(injectedConfig));
         examConfigRef.current = injectedConfig;
       } else {
@@ -144,13 +111,6 @@ export const CameraScanner: React.FC = () => {
           console.error(`Exam config not found: ${examConfigId}`);
           return;
         }
-
-        console.log("📋 Loaded mock exam config:", {
-          examId: config.examId,
-          examName: config.examName,
-          templateId: config.templateId,
-          questionCount: config.questions.length,
-        });
 
         examConfigRef.current = config;
       }
@@ -765,35 +725,13 @@ export const CameraScanner: React.FC = () => {
 
       // Get exam config - check for injected config first, then fallback to ref
       let configToUse = examConfigRef.current;
-      
-      console.log("🔍 Current cached config:", configToUse ? {
-        examId: configToUse.examId,
-        examName: configToUse.examName,
-        templateId: configToUse.templateId
-      } : "null");
-      
+
       // Always check for injected config first (in case it was updated after component mount)
       const injectedConfig = getInjectedObject();
       if (injectedConfig) {
-        // Check if this is different from what we had before
-        const wasDifferent = !configToUse || configToUse.examId !== injectedConfig.examId;
-        
-        console.log("🎯 Using injected exam config for capture:", {
-          examId: injectedConfig.examId,
-          examName: injectedConfig.examName,
-          templateId: injectedConfig.templateId,
-          wasDifferent: wasDifferent
-        });
-        
         configToUse = injectedConfig;
         examConfigRef.current = injectedConfig; // Update ref for consistency
-      } else if (configToUse) {
-        console.log("🎯 Using cached exam config for capture:", {
-          examId: configToUse.examId,
-          examName: configToUse.examName,
-          templateId: configToUse.templateId
-        });
-      } else {
+      } else if (!configToUse) {
         throw new Error(
           "No exam config available. Please ensure exam config is injected from native side or use mock config for development."
         );
