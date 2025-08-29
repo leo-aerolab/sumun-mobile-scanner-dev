@@ -47,13 +47,13 @@ function getInjectedObject(): ExamConfig | null {
         console.log("📱 No injected object found in webview");
         return null;
       }
-      
+
       const parsed = JSON.parse(injectedObject);
       if (!parsed.examConfig) {
         console.log("📱 No examConfig found in injected object");
         return null;
       }
-      
+
       console.log("📱 Successfully loaded exam config from webview injection");
       return parsed.examConfig;
     } catch (error) {
@@ -89,7 +89,6 @@ export const CameraScanner: React.FC = () => {
     null
   );
   const [isWebView, setIsWebView] = useState(false);
-  const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
 
   // Refs for immediate state tracking to avoid closure stale state
   const isProcessingRef = useRef(false);
@@ -102,15 +101,15 @@ export const CameraScanner: React.FC = () => {
   useEffect(() => {
     // Try to get exam config from injected object (webview) first
     const injectedConfig = getInjectedObject();
-  
+
     if (injectedConfig) {
       console.log("📋 Loaded exam config from webview:", {
         examId: injectedConfig.examId,
         examName: injectedConfig.examName,
         templateId: injectedConfig.templateId,
-        questionCount: injectedConfig.questions.length
+        questionCount: injectedConfig.questions.length,
       });
-      setExamConfig(injectedConfig);
+      alert(JSON.stringify(injectedConfig));
       examConfigRef.current = injectedConfig;
     } else {
       const examConfigId = "mock-microtest-local";
@@ -120,16 +119,15 @@ export const CameraScanner: React.FC = () => {
         console.error(`Exam config not found: ${examConfigId}`);
         return;
       }
-      
+
       console.log("📋 Loaded mock exam config:", {
         examId: config.examId,
         examName: config.examName,
         templateId: config.templateId,
-        questionCount: config.questions.length
+        questionCount: config.questions.length,
       });
 
-              setExamConfig(config);
-        examConfigRef.current = config;
+      examConfigRef.current = config;
     }
   }, []);
 
@@ -232,34 +230,32 @@ export const CameraScanner: React.FC = () => {
         const paddingLeft = 90;
         const paddingTop = 70;
         const extraPadding = 20;
-        const extendedMinLeft = Math.max(0, minLeft - paddingLeft - extraPadding);
+        const extendedMinLeft = Math.max(
+          0,
+          minLeft - paddingLeft - extraPadding
+        );
         const extendedMinTop = Math.max(0, minTop - paddingTop - extraPadding);
 
         // Process each question
         let questionIndex = 0;
 
         for (const block of template.fieldBlocks) {
-          const {
-            top,
-            left,
-            width,
-            height,
-            numQuestions,
-            gapY,
-          } = block;
+          const { top, left, width, height, numQuestions, gapY } = block;
 
           // Calculate row height
-          const cellH = (height - (gapY || 0) * (numQuestions - 1)) / numQuestions;
+          const cellH =
+            (height - (gapY || 0) * (numQuestions - 1)) / numQuestions;
 
           for (let q = 0; q < numQuestions; q++) {
             const questionResult = examResults.questions[questionIndex];
-            
+
             // Check if this question should be included
             // Only include illegible answers (low confidence or "?"), not incomplete/empty answers
-            const isIllegible = questionResult && (
-              (questionResult.confidence > 0 && questionResult.confidence < 0.3) || 
-              questionResult.selectedAnswer === "?"
-            );
+            const isIllegible =
+              questionResult &&
+              ((questionResult.confidence > 0 &&
+                questionResult.confidence < 0.3) ||
+                questionResult.selectedAnswer === "?");
 
             const shouldInclude = includeAllQuestions || isIllegible;
 
@@ -267,22 +263,26 @@ export const CameraScanner: React.FC = () => {
               // Calculate row position in original image coordinates
               const rowTop = top + q * cellH + q * (gapY || 0);
               const rowHeight = cellH;
-              
+
               // Add some padding to the row to include context
               const rowPadding = 10;
               const adjustedRowTop = Math.max(0, rowTop - rowPadding);
-              const adjustedRowHeight = rowHeight + (2 * rowPadding);
-              
+              const adjustedRowHeight = rowHeight + 2 * rowPadding;
+
               // Convert to fieldBlocks image coordinates (relative to the cropped region)
               const rowTopInFieldBlocks = adjustedRowTop - extendedMinTop;
               const rowLeftInFieldBlocks = left - paddingLeft - extendedMinLeft;
-              const rowWidthInFieldBlocks = width + (paddingLeft * 2);
+              const rowWidthInFieldBlocks = width + paddingLeft * 2;
 
               // Create canvas for this row
               const rowCanvas = document.createElement("canvas");
               const rowCtx = rowCanvas.getContext("2d");
-              
-              if (rowCtx && rowTopInFieldBlocks >= 0 && rowLeftInFieldBlocks >= 0) {
+
+              if (
+                rowCtx &&
+                rowTopInFieldBlocks >= 0 &&
+                rowLeftInFieldBlocks >= 0
+              ) {
                 rowCanvas.width = rowWidthInFieldBlocks;
                 rowCanvas.height = adjustedRowHeight;
 
@@ -291,8 +291,14 @@ export const CameraScanner: React.FC = () => {
                   fieldBlocksImage,
                   Math.max(0, rowLeftInFieldBlocks),
                   Math.max(0, rowTopInFieldBlocks),
-                  Math.min(rowWidthInFieldBlocks, fieldBlocksImage.width - rowLeftInFieldBlocks),
-                  Math.min(adjustedRowHeight, fieldBlocksImage.height - rowTopInFieldBlocks),
+                  Math.min(
+                    rowWidthInFieldBlocks,
+                    fieldBlocksImage.width - rowLeftInFieldBlocks
+                  ),
+                  Math.min(
+                    adjustedRowHeight,
+                    fieldBlocksImage.height - rowTopInFieldBlocks
+                  ),
                   0,
                   0,
                   rowCanvas.width,
@@ -300,9 +306,12 @@ export const CameraScanner: React.FC = () => {
                 );
 
                 // Store the row image
-                rowImages[questionResult.questionName] = rowCanvas.toDataURL("image/png");
+                rowImages[questionResult.questionName] =
+                  rowCanvas.toDataURL("image/png");
                 const questionType = isIllegible ? "illegible" : "readable";
-                console.log(`Generated row image for ${questionType} question: ${questionResult.questionName}`);
+                console.log(
+                  `Generated row image for ${questionType} question: ${questionResult.questionName}`
+                );
                 console.log(rowCanvas.toDataURL("image/png"));
               }
             }
@@ -324,7 +333,12 @@ export const CameraScanner: React.FC = () => {
     examResults: ExamResult,
     examType: any
   ): Promise<{ [questionName: string]: string }> => {
-    return generateQuestionRowImages(fieldBlocksImageDataURL, examResults, examType, false);
+    return generateQuestionRowImages(
+      fieldBlocksImageDataURL,
+      examResults,
+      examType,
+      false
+    );
   };
 
   // Detect if we're in a webview
@@ -723,23 +737,31 @@ export const CameraScanner: React.FC = () => {
       // Get exam config from ref to avoid race conditions
       const configToUse = examConfigRef.current;
       if (!configToUse) {
-        throw new Error("No exam config available. Please ensure exam config is injected from native side or use mock config for development.");
+        throw new Error(
+          "No exam config available. Please ensure exam config is injected from native side or use mock config for development."
+        );
       }
 
       // Validate that detected exam type matches the expected template from config
       if (configToUse.templateId !== detectedExamType.id) {
-        throw new Error(`Exam type mismatch: Expected template ${configToUse.templateId} but detected ${detectedExamType.id}. Please ensure the correct exam is being scanned.`);
+        throw new Error(
+          `Exam type mismatch: Expected template ${configToUse.templateId} but detected ${detectedExamType.id}. Please ensure the correct exam is being scanned.`
+        );
       }
 
-      console.log(`✅ Exam type validation passed: ${detectedExamType.id} matches expected template ${configToUse.templateId}`);
+      console.log(
+        `✅ Exam type validation passed: ${detectedExamType.id} matches expected template ${configToUse.templateId}`
+      );
 
       // Validate the exam config
       const validation = validateExamConfig(configToUse);
       if (!validation.isValid) {
         console.error("Exam config validation failed:", validation.errors);
-        throw new Error(`Exam config validation failed: ${validation.errors.join(', ')}`);
+        throw new Error(
+          `Exam config validation failed: ${validation.errors.join(", ")}`
+        );
       }
-      
+
       if (validation.warnings.length > 0) {
         console.warn("Exam config validation warnings:", validation.warnings);
       }
@@ -786,10 +808,10 @@ export const CameraScanner: React.FC = () => {
       // Create exam results without bubbles for webview
       const examResultsWithoutBubbles = {
         ...result.examResults,
-        questions: result.examResults.questions.map(question => ({
+        questions: result.examResults.questions.map((question) => ({
           ...question,
           bubbles: undefined, // Exclude bubbles from webview data
-        }))
+        })),
       };
 
       sendMessageToWebView("examResults", {
@@ -846,14 +868,23 @@ export const CameraScanner: React.FC = () => {
 
       // Log illegible questions and their row images
       const illegibleQuestions = result.examResults.questions.filter(
-        (q) => (q.confidence > 0 && q.confidence < 0.3) || q.selectedAnswer === "?"
+        (q) =>
+          (q.confidence > 0 && q.confidence < 0.3) || q.selectedAnswer === "?"
       );
       if (illegibleQuestions.length > 0) {
         console.log("🔍 Illegible Questions Detected:");
         illegibleQuestions.forEach((q) => {
-          console.log(`- ${q.questionName}: confidence=${Math.round(q.confidence * 100)}%, answer="${q.selectedAnswer}"`);
+          console.log(
+            `- ${q.questionName}: confidence=${Math.round(
+              q.confidence * 100
+            )}%, answer="${q.selectedAnswer}"`
+          );
         });
-        console.log(`📸 Generated ${Object.keys(illegibleRowImages).length} row images for illegible questions`);
+        console.log(
+          `📸 Generated ${
+            Object.keys(illegibleRowImages).length
+          } row images for illegible questions`
+        );
       }
 
       // Wait until openai is done parsing the personal info
