@@ -1018,7 +1018,7 @@ export const CameraScanner: React.FC = () => {
       )}
 
       {/* Exam Type Mismatch Error Modal */}
-      {examTypeMismatchError && (
+      {!isWebView && examTypeMismatchError && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full text-center">
             <div className="mb-4">
