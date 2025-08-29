@@ -99,36 +99,41 @@ export const CameraScanner: React.FC = () => {
 
   // Load exam config on component mount
   useEffect(() => {
-    // Try to get exam config from injected object (webview) first
-    const injectedConfig = getInjectedObject();
+    const loadExamConfig = () => {
+      // Try to get exam config from injected object (webview) first
+      const injectedConfig = getInjectedObject();
 
-    if (injectedConfig) {
-      console.log("📋 Loaded exam config from webview:", {
-        examId: injectedConfig.examId,
-        examName: injectedConfig.examName,
-        templateId: injectedConfig.templateId,
-        questionCount: injectedConfig.questions.length,
-      });
-      alert(JSON.stringify(injectedConfig));
-      examConfigRef.current = injectedConfig;
-    } else {
-      const examConfigId = "mock-microtest-local";
-      // Fallback to mock config
-      const config = getExamConfig(examConfigId);
-      if (!config) {
-        console.error(`Exam config not found: ${examConfigId}`);
-        return;
+      if (injectedConfig) {
+        console.log("📋 Loaded exam config from webview:", {
+          examId: injectedConfig.examId,
+          examName: injectedConfig.examName,
+          templateId: injectedConfig.templateId,
+          questionCount: injectedConfig.questions.length,
+        });
+        alert(JSON.stringify(injectedConfig));
+        examConfigRef.current = injectedConfig;
+      } else {
+        const examConfigId = "mock-microtest-local";
+        // Fallback to mock config
+        const config = getExamConfig(examConfigId);
+        if (!config) {
+          console.error(`Exam config not found: ${examConfigId}`);
+          return;
+        }
+
+        console.log("📋 Loaded mock exam config:", {
+          examId: config.examId,
+          examName: config.examName,
+          templateId: config.templateId,
+          questionCount: config.questions.length,
+        });
+
+        examConfigRef.current = config;
       }
+    };
 
-      console.log("📋 Loaded mock exam config:", {
-        examId: config.examId,
-        examName: config.examName,
-        templateId: config.templateId,
-        questionCount: config.questions.length,
-      });
-
-      examConfigRef.current = config;
-    }
+    // Load config immediately
+    loadExamConfig();
   }, []);
 
   // Function to generate field blocks image from originalDataURL
@@ -734,9 +739,18 @@ export const CameraScanner: React.FC = () => {
         throw new Error("Could not identify exam type from markers");
       }
 
-      // Get exam config from ref to avoid race conditions
-      const configToUse = examConfigRef.current;
-      if (!configToUse) {
+      // Get exam config - check for injected config first, then fallback to ref
+      let configToUse = examConfigRef.current;
+      
+      // Always check for injected config first (in case it was updated after component mount)
+      const injectedConfig = getInjectedObject();
+      if (injectedConfig) {
+        console.log("🎯 Using injected exam config for capture");
+        configToUse = injectedConfig;
+        examConfigRef.current = injectedConfig; // Update ref for consistency
+      } else if (configToUse) {
+        console.log("🎯 Using cached exam config for capture");
+      } else {
         throw new Error(
           "No exam config available. Please ensure exam config is injected from native side or use mock config for development."
         );
