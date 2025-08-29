@@ -102,7 +102,7 @@ export const CameraScanner: React.FC = () => {
       const injectedConfig = getInjectedObject();
 
       if (injectedConfig) {
-        alert(JSON.stringify(injectedConfig));
+        // alert(JSON.stringify(injectedConfig));
         examConfigRef.current = injectedConfig;
       } else {
         const examConfigId = "mock-microtest-local";
