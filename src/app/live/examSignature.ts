@@ -18,23 +18,23 @@ export interface ExamSignature {
 
 // Define known exam signatures
 export const EXAM_SIGNATURES: ExamSignature[] = [
+  // {
+  //   id: "sumun-exam-1x1", 
+  //   name: "Sumun Exam 1x1",
+  //   description: "1 exam per page, 30 questions",
+  //   markerIds: [22, 10, 30, 41, 34, 15], // Current configuration
+  //   layoutType: "3x2-grid",
+  //   version: "1.0",
+  //   metadata: {
+  //     totalQuestions: 30,
+  //     questionsPerPage: 30,
+  //     answerOptions: 5,
+  //     hasPersonalInfo: true,
+  //   }
+  // },
   {
-    id: "sumun-exam-1x1", 
-    name: "Sumun Exam 1x1",
-    description: "1 exam per page, 30 questions",
-    markerIds: [22, 10, 30, 41, 34, 15], // Current configuration
-    layoutType: "3x2-grid",
-    version: "1.0",
-    metadata: {
-      totalQuestions: 30,
-      questionsPerPage: 30,
-      answerOptions: 5,
-      hasPersonalInfo: true,
-    }
-  },
-  {
-    id: "sumun-exam-1x2", 
-    name: "Sumun Exam 1x2", 
+    id: "sumun-exam-diagnostic", 
+    name: "Diagnostic", 
     description: "1 exam per page, 10 questions",
     markerIds: [7, 8, 9, 10, 11, 12], // Based on image markers
     layoutType: "3x2-grid",
@@ -42,13 +42,13 @@ export const EXAM_SIGNATURES: ExamSignature[] = [
     metadata: {
       totalQuestions: 10,
       questionsPerPage: 10,
-      answerOptions: 5,
+      answerOptions: 4,
       hasPersonalInfo: true,
     }
   },
   {
-    id: "sumun-exam-1x4", 
-    name: "Sumun Exam 1x4", 
+    id: "sumun-exam-microtest", 
+    name: "Microtest", 
     description: "1 exam per page, 5 questions",
     markerIds: [1, 2, 3, 4, 5, 6], // Based on image markers
     layoutType: "3x2-grid",
@@ -56,7 +56,7 @@ export const EXAM_SIGNATURES: ExamSignature[] = [
     metadata: {
       totalQuestions: 5,
       questionsPerPage: 5,
-      answerOptions: 5,
+      answerOptions: 4,
       hasPersonalInfo: true,
     }
   }

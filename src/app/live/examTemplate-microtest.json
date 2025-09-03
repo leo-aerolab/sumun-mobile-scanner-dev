@@ -1,0 +1,21 @@
+{
+  "pageDimensions": [1000, 1520],
+  "visionBlock": {
+    "top": 95,
+    "left": 80,
+    "width": 840,
+    "height": 400,
+    "extract": ["first_name", "last_name"]
+  },
+  "fieldBlocks": [
+    {
+      "name": "Questions 1-5",
+      "top": 1023,
+      "left": 370,
+      "width": 365,
+      "height": 435,
+      "numOptions": 4,
+      "numQuestions": 5
+    }
+  ]
+}

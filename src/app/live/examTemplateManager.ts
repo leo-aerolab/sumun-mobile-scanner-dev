@@ -2,15 +2,19 @@ import { ExamTemplate } from "./types";
 import { ExamSignature } from "./examSignature";
 
 // Template imports - we'll import these statically for now
-import examTemplate1x1 from "./examTemplate-1x1.json";
-import examTemplate1x2 from "./examTemplate-1x2.json";
-import examTemplate1x4 from "./examTemplate-1x4.json";
+// import examTemplate1x1 from "./examTemplate-1x1.json";
+// import examTemplate1x2 from "./examTemplate-1x2.json";
+// import examTemplate1x4 from "./examTemplate-1x4.json";
+import examTemplateDiagnostic from "./examTemplate-diagnostic.json";
+import examTemplateMicrotest from "./examTemplate-microtest.json";
 
 // Template registry mapping exam signature IDs to their templates
 const TEMPLATE_REGISTRY: Record<string, ExamTemplate> = {
-  "sumun-exam-1x1": examTemplate1x1 as ExamTemplate,
-  "sumun-exam-1x2": examTemplate1x2 as ExamTemplate,
-  "sumun-exam-1x4": examTemplate1x4 as ExamTemplate,
+  // "sumun-exam-1x1": examTemplate1x1 as ExamTemplate,
+  // "sumun-exam-1x2": examTemplate1x2 as ExamTemplate,
+  // "sumun-exam-1x4": examTemplate1x4 as ExamTemplate,
+  "sumun-exam-diagnostic": examTemplateDiagnostic as ExamTemplate,
+  "sumun-exam-microtest": examTemplateMicrotest as ExamTemplate,
 };
 
 /**
@@ -111,8 +115,8 @@ export const validateTemplate = (template: ExamTemplate, examSignature: ExamSign
   }
   
   // Check if template has personal info blocks when signature expects them
-  if (examSignature.metadata?.hasPersonalInfo && !template.readBlocks?.length && !template.visionBlock) {
-    warnings.push("Signature expects personal info but template has no readBlocks or visionBlock");
+  if (examSignature.metadata?.hasPersonalInfo && !template.visionBlock) {
+    warnings.push("Signature expects personal info but template has no visionBlock");
   }
   
   return {
@@ -144,7 +148,7 @@ export const getTemplateSummary = (template: ExamTemplate): {
     totalQuestions,
     numBlocks: template.fieldBlocks?.length || 0,
     answerOptions: uniqueOptions,
-    hasPersonalInfo: !!(template.readBlocks?.length || template.visionBlock),
+    hasPersonalInfo: !!(template.visionBlock),
     dimensions: template.pageDimensions || [0, 0]
   };
 }; 
