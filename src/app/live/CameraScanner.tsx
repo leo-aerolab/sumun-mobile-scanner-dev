@@ -819,8 +819,8 @@ export const CameraScanner: React.FC = () => {
         examResults: examResultsWithoutBubbles,
         examType: result.examType.name,
         templateId: result.examType.id,
-        examConfigId: result.examConfig.examId,
-        examConfigName: result.examConfig.examName,
+        examId: result.examConfig.examId,
+        examName: result.examConfig.examName,
         illegibleRowImages,
       });
 
@@ -833,8 +833,8 @@ export const CameraScanner: React.FC = () => {
         examResults: result.examResults,
         examType: result.examType.name,
         templateId: result.examType.id,
-        examConfigId: result.examConfig.examId,
-        examConfigName: result.examConfig.examName,
+        examId: result.examConfig.examId,
+        examName: result.examConfig.examName,
         configSource: "injected/webview",
         markerSignature: result.examType.markerIds.join("-"),
         questionsProcessed: result.examResults.questions.length,

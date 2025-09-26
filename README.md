@@ -37,16 +37,6 @@ interface ExamQuestion {
 }
 ```
 
-### Usage
-
-1. **Create an exam config** with questions and answers
-2. **Reference a template** using `templateId`
-3. **Pass the config ID** to the CameraScanner component (optional)
-
-```tsx
-<CameraScanner examConfigId="my-exam-1" />
-```
-
 ### Workflow
 
 The scanner follows a specific workflow:
