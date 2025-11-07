@@ -16,7 +16,7 @@ export type AnalyzedBubble = {
 
 // Updated result structure with all bubbles and selection logic
 export type QuestionResult = {
-  questionName: string;
+  questionId: string;
   bubbles: AnalyzedBubble[];
   selectedAnswer: string; // Single letter, empty if none, "?" if multiple/doubt
   correctAnswer: string;
@@ -201,7 +201,7 @@ export const scoreExam = async (
 
       // Get question details from exam config instead of template
       const questionConfig = examConfig.questions[questionIndex];
-      const questionName = questionConfig?.name || `Q${questionIndex + 1}`;
+      const questionId = questionConfig?.id;
       const correctAnswer = questionConfig?.correctAnswer || "";
       const answerPoints = questionConfig?.points || 1;
 
@@ -215,7 +215,7 @@ export const scoreExam = async (
 
       // Create question result
       const questionResult: QuestionResult = {
-        questionName,
+        questionId,
         bubbles,
         selectedAnswer,
         correctAnswer,
