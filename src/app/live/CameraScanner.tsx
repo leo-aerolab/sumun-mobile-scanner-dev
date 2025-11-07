@@ -75,7 +75,7 @@ export const CameraScanner: React.FC = () => {
   const [capturedImage, setCapturedImage] = useState<{
     canvasDataURL: string;
     fieldBlocksImage: string;
-    illegibleRowImages?: { [questionName: string]: string };
+    illegibleRowImages?: { [questionId: string]: string };
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
@@ -194,15 +194,15 @@ export const CameraScanner: React.FC = () => {
     examResults: ExamResult,
     examType: any,
     includeAllQuestions: boolean = false
-  ): Promise<{ [questionName: string]: string }> => {
+  ): Promise<{ [questionId: string]: string }> => {
     const template = getExamTemplate(examType);
-    const rowImages: { [questionName: string]: string } = {};
+    const rowImages: { [questionId: string]: string } = {};
 
     // Create an image from the fieldBlocksImageDataURL
     const fieldBlocksImage = new Image();
     fieldBlocksImage.crossOrigin = "anonymous";
 
-    return new Promise<{ [questionName: string]: string }>((resolve) => {
+    return new Promise<{ [questionId: string]: string }>((resolve) => {
       fieldBlocksImage.onload = () => {
         // Calculate the bounding box used for fieldBlocks image (same logic as generateFieldBlocksImage)
         let minLeft = Infinity;
@@ -296,11 +296,11 @@ export const CameraScanner: React.FC = () => {
                 );
 
                 // Store the row image
-                rowImages[questionResult.questionName] =
+                rowImages[questionResult.questionId] =
                   rowCanvas.toDataURL("image/png");
                 const questionType = isIllegible ? "illegible" : "readable";
                 console.log(
-                  `Generated row image for ${questionType} question: ${questionResult.questionName}`
+                  `Generated row image for ${questionType} question: ${questionResult.questionId}`
                 );
                 console.log(rowCanvas.toDataURL("image/png"));
               }
@@ -322,7 +322,7 @@ export const CameraScanner: React.FC = () => {
     fieldBlocksImageDataURL: string,
     examResults: ExamResult,
     examType: any
-  ): Promise<{ [questionName: string]: string }> => {
+  ): Promise<{ [questionId: string]: string }> => {
     return generateQuestionRowImages(
       fieldBlocksImageDataURL,
       examResults,
@@ -779,7 +779,7 @@ export const CameraScanner: React.FC = () => {
       // Store canvas image, original processed image, and field blocks image
       let canvasDataURL = "";
       let fieldBlocksImage = "";
-      let illegibleRowImages: { [questionName: string]: string } = {};
+      let illegibleRowImages: { [questionId: string]: string } = {};
 
       if (canvasRef.current && !capturedImage) {
         canvasDataURL = canvasRef.current.toDataURL("image/png");
@@ -876,7 +876,7 @@ export const CameraScanner: React.FC = () => {
         console.log("🔍 Illegible Questions Detected:");
         illegibleQuestions.forEach((q) => {
           console.log(
-            `- ${q.questionName}: confidence=${Math.round(
+            `- ${q.questionId}: confidence=${Math.round(
               q.confidence * 100
             )}%, answer="${q.selectedAnswer}"`
           );

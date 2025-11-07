@@ -36,7 +36,8 @@ export interface ExamTemplate {
 
 // New exam config interface for questions/answers
 export interface ExamQuestion {
-  name: string;
+  id: string;
+  label: string;
   correctAnswer: string;
   points: number;
 }

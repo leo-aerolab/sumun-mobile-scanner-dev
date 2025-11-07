@@ -8,16 +8,16 @@ export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
     examName: "Mock Diagnostic (Local)",
     templateId: "sumun-exam-diagnostic",
     questions: [
-      { name: "Question 1", correctAnswer: "A", points: 1 },
-      { name: "Question 2", correctAnswer: "A", points: 1 },
-      { name: "Question 3", correctAnswer: "B", points: 1 },
-      { name: "Question 4", correctAnswer: "C", points: 1 },
-      { name: "Question 5", correctAnswer: "D", points: 1 },
-      { name: "Question 6", correctAnswer: "A", points: 1 },
-      { name: "Question 7", correctAnswer: "A", points: 1 },
-      { name: "Question 8", correctAnswer: "B", points: 1 },
-      { name: "Question 9", correctAnswer: "C", points: 1 },
-      { name: "Question 10", correctAnswer: "D", points: 1 },
+      { id: "q1", label: "Question 1", correctAnswer: "A", points: 1 },
+      { id: "q2", label: "Question 2", correctAnswer: "A", points: 1 },
+      { id: "q3", label: "Question 3", correctAnswer: "B", points: 1 },
+      { id: "q4", label: "Question 4", correctAnswer: "C", points: 1 },
+      { id: "q5", label: "Question 5", correctAnswer: "D", points: 1 },
+      { id: "q6", label: "Question 6", correctAnswer: "A", points: 1 },
+      { id: "q7", label: "Question 7", correctAnswer: "A", points: 1 },
+      { id: "q8", label: "Question 8", correctAnswer: "B", points: 1 },
+      { id: "q9", label: "Question 9", correctAnswer: "C", points: 1 },
+      { id: "q10", label: "Question 10", correctAnswer: "D", points: 1 },
     ],
   },
   "mock-microtest-local": {
@@ -25,11 +25,11 @@ export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
     examName: "Mock Microtest (Local)",
     templateId: "sumun-exam-microtest",
     questions: [
-      { name: "Science Q1", correctAnswer: "B", points: 1 },
-      { name: "Science Q2", correctAnswer: "B", points: 1 },
-      { name: "Science Q3", correctAnswer: "B", points: 1 },
-      { name: "Science Q4", correctAnswer: "C", points: 1 },
-      { name: "Science Q5", correctAnswer: "D", points: 1 },
+      { id: "q1", label: "Science Q1", correctAnswer: "B", points: 1 },
+      { id: "q2", label: "Science Q2", correctAnswer: "B", points: 1 },
+      { id: "q3", label: "Science Q3", correctAnswer: "B", points: 1 },
+      { id: "q4", label: "Science Q4", correctAnswer: "C", points: 1 },
+      { id: "q5", label: "Science Q5", correctAnswer: "D", points: 1 },
     ],
   },
 };
@@ -98,8 +98,8 @@ export const validateExamConfig = (config: ExamConfig): {
 
   // Validate each question has required properties
   config.questions?.forEach((question, index) => {
-    if (!question.name) {
-      errors.push(`Question ${index + 1} missing name`);
+    if (!question.id) {
+      errors.push(`Question ${index + 1} missing id`);
     }
     if (!question.correctAnswer) {
       errors.push(`Question ${index + 1} missing correctAnswer`);
