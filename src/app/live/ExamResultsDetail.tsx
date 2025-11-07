@@ -98,7 +98,7 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
               {getStatusIcon(q.selectedAnswer, q.correctAnswer, q.confidence)}
               <div className="flex-1">
                 <div className="font-medium text-gray-900">
-                  Pregunta {idx + 1}
+                  {q.questionLabel}
                 </div>
                 <div className="text-sm text-gray-500 flex gap-4 justify-between">
                   <span>
