@@ -44,9 +44,11 @@ export const getExamConfig = (examId: string): ExamConfig | null => {
 /**
  * Get exam config by template ID (for dynamic selection)
  */
-export const getExamConfigByTemplateId = (templateId: string): ExamConfig | null => {
+export const getExamConfigByTemplateId = (
+  templateId: string
+): ExamConfig | null => {
   const configs = Object.values(MOCK_EXAM_CONFIGS);
-  return configs.find(config => config.templateId === templateId) || null;
+  return configs.find((config) => config.templateId === templateId) || null;
 };
 
 /**
@@ -59,7 +61,9 @@ export const getAvailableExamConfigIds = (): string[] => {
 /**
  * Validate exam config against template
  */
-export const validateExamConfig = (config: ExamConfig): {
+export const validateExamConfig = (
+  config: ExamConfig
+): {
   isValid: boolean;
   errors: string[];
   warnings: string[];
@@ -84,10 +88,11 @@ export const validateExamConfig = (config: ExamConfig): {
   }
 
   // Calculate total questions from template fieldBlocks
-  const totalTemplateQuestions = template.fieldBlocks?.reduce(
-    (sum: number, block: any) => sum + (block.numQuestions || 0), 
-    0
-  ) || 0;
+  const totalTemplateQuestions =
+    template.fieldBlocks?.reduce(
+      (sum: number, block: any) => sum + (block.numQuestions || 0),
+      0
+    ) || 0;
 
   // Check if config questions match template capacity
   if (config.questions.length !== totalTemplateQuestions) {
@@ -112,6 +117,6 @@ export const validateExamConfig = (config: ExamConfig): {
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 };

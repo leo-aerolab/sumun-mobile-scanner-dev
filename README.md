@@ -23,15 +23,11 @@ interface ExamConfig {
   examName: string;
   templateId: string; // References the template to use
   questions: ExamQuestion[];
-  metadata?: {
-    totalQuestions?: number;
-    answerOptions?: number;
-    hasPersonalInfo?: boolean;
-  };
 }
 
 interface ExamQuestion {
-  name: string;
+  id: string;
+  label: string;
   correctAnswer: string;
   points: number;
 }
@@ -51,8 +47,8 @@ The scanner follows a specific workflow:
 
 The system includes mock exam configurations for testing:
 
-- `mock-diagnostic-1`: Diagnostic exam (10 questions, 1 point each) - uses 1x2 template
-- `mock-microtest-1`: Microtest (5 questions, 2 points each) - uses 1x4 template
+- `mock-diagnostic-local`: Diagnostic exam (10 questions, 1 point each) - uses 1x2 template
+- `mock-microtest-local`: Microtest (5 questions, 2 points each) - uses 1x4 template
 
 ### Webview Integration
 
@@ -62,10 +58,10 @@ When running in a React Native WebView, the scanner expects the exam config to b
 // In React Native - after user selects a test
 const examConfig = {
   examId: "my-exam-1",
-  examName: "Mathematics Final",
-  templateId: "sumun-exam-1x1", // Must match the actual exam template
+  examName: "Mathematics 1",
+  templateId: "sumun-exam-microtest", // Must match the actual exam template
   questions: [
-    { name: "Question 1", correctAnswer: "A", points: 1 },
+    { id: "q1", label: "Question 1", correctAnswer: "A", points: 1 },
     // ... more questions
   ]
 };
