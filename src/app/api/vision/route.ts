@@ -8,16 +8,43 @@ import {
 // Request body schema
 const RequestBodySchema = z.object({
   image: z.string(), // base64 encoded JPG image
+  students: z
+    .array(
+      z.object({
+        name: z.string(),
+        lastname: z.string(),
+        id: z.string(),
+        username: z.string(),
+        ref_id: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export async function POST(request: Request) {
   try {
     // Parse the request body
     const body = await request.json();
-    const { image } = RequestBodySchema.parse(body);
+    const { image, students } = RequestBodySchema.parse(body);
+
+    // Build students list text for the prompt
+    let studentsListText = "";
+    if (students && students.length > 0) {
+      const studentsNames = students
+        .map((s) => `${s.name} ${s.lastname}`)
+        .join(", ");
+      studentsListText = `\n\nPossible students in this exam:\n${studentsNames}\n\nIf the extracted text matches one of these students, use that exact name and lastname. Otherwise, use the extracted text as-is.`;
+    }
 
     // Call OpenAI with the provided image
-    const result = await callOpenAI<ExamPersonalInfoType>(
+    // OpenAI only returns first_name, last_name, and confidence
+    // student_id, student_username, and student_ref_id are added after matching
+    const result = await callOpenAI<
+      Omit<
+        ExamPersonalInfoType,
+        "student_id" | "student_username" | "student_ref_id"
+      >
+    >(
       [
         {
           role: "system",
@@ -27,10 +54,10 @@ The student is from a latin-american, spanish-speaking country
 Rules:
 - Only extract text from the specified fields.
 - The labels for the fields are below the handwritten area.
-- The labels are: "NOMBRE", "APELLIDO".
+- The labels are: "NOMBRE COMPLETO", "APELLIDO COMPLETO".
 - The confidence field goes from 0.0 to 1.0, where 0.0 is completely unreadable and 1.0 is completely readable.
 - Do not include any explanation, just the JSON object
-- Focus on handwritten text recognition`,
+- Focus on handwritten text recognition${studentsListText}`,
         },
         {
           role: "user",
@@ -49,11 +76,61 @@ Rules:
           ],
         },
       ],
-      ExamPersonalInfoSchema
+      ExamPersonalInfoSchema.omit({
+        student_id: true,
+        student_username: true,
+        student_ref_id: true,
+      })
     );
 
-    console.log(result);
-    return Response.json(result);
+    // Match extracted name with students list to get student_id
+    let studentId = "";
+    let studentUsername = "";
+    let studentRefId = "";
+
+    if (
+      students &&
+      students.length > 0 &&
+      result.first_name &&
+      result.last_name
+    ) {
+      // Normalize strings for comparison (trim, lowercase, remove accents)
+      const normalizeString = (str: string) =>
+        str
+          .toLowerCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, ""); // Remove accents
+
+      const extractedFirstName = normalizeString(result.first_name);
+      const extractedLastName = normalizeString(result.last_name);
+
+      const matchedStudent = students.find((student) => {
+        const studentFirstName = normalizeString(student.name);
+        const studentLastName = normalizeString(student.lastname);
+        return (
+          studentFirstName === extractedFirstName &&
+          studentLastName === extractedLastName
+        );
+      });
+
+      if (matchedStudent) {
+        studentId = matchedStudent.id;
+        studentUsername = matchedStudent.username;
+        studentRefId = matchedStudent.ref_id;
+      }
+    }
+
+    // Combine OpenAI result with matched student_id
+    const finalResult: ExamPersonalInfoType = {
+      ...result,
+      student_id: studentId,
+      student_username: studentUsername,
+      student_ref_id: studentRefId,
+    };
+
+    console.log(finalResult);
+    return Response.json(finalResult);
   } catch (error) {
     console.error("Error processing vision request:", error);
     return Response.json(

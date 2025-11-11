@@ -1,5 +1,15 @@
-import { ExamConfig } from "./types";
+import { ExamConfig, ExamStudent } from "./types";
 import { getExamTemplateById } from "./examTemplateManager";
+
+const MOCK_STUDENTS: ExamStudent[] = [
+  {
+    id: "aaaaaaaa-cae7-50fc-9145-2e6372eb0359",
+    name: "Mock",
+    lastname: "Student",
+    username: "mock_student",
+    ref_id: "00000000-0000-1000-0000-000000012345",
+  },
+];
 
 // Mock exam configurations
 export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
@@ -38,7 +48,10 @@ export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
  * Get exam config by ID
  */
 export const getExamConfig = (examId: string): ExamConfig | null => {
-  return MOCK_EXAM_CONFIGS[examId] || null;
+  return {
+    ...MOCK_EXAM_CONFIGS[examId],
+    students: MOCK_STUDENTS,
+  };
 };
 
 /**

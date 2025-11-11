@@ -124,7 +124,7 @@ export const captureAndProcessImage = async (
   const examResults = await scoreExam(cv, processedPageMat, examTemplate, examConfig);
 
   console.log("Exam results:", examResults);
-  const personalInfoPromise = readPersonalInfo(cv, rawPageMat, examTemplate);
+  const personalInfoPromise = readPersonalInfo(cv, rawPageMat, examTemplate, examConfig.students);
 
   // Convert processed image to PNG for OCR
   const postCanvas = document.createElement("canvas");

@@ -42,9 +42,18 @@ export interface ExamQuestion {
   points: number;
 }
 
+export interface ExamStudent {
+  id: string;
+  name: string;
+  lastname: string;
+  username: string;
+  ref_id: string;
+}
+
 export interface ExamConfig {
   examId: string;
   examName: string;
   templateId: string; // References the template to use
   questions: ExamQuestion[];
+  students?: ExamStudent[];
 }

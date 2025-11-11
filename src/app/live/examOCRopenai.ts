@@ -1,5 +1,5 @@
 import { CV, Mat } from "@techstark/opencv-js";
-import { ExamTemplate } from "./types";
+import { ExamTemplate, ExamStudent } from "./types";
 import { ExamPersonalInfoType } from "../api/vision/libs";
 
 /**
@@ -8,7 +8,8 @@ import { ExamPersonalInfoType } from "../api/vision/libs";
 export const readPersonalInfo = async (
   cv: CV,
   matGray: Mat,
-  template: ExamTemplate
+  template: ExamTemplate,
+  students?: ExamStudent[]
 ): Promise<ExamPersonalInfoType | null> => {
   try {
     const visionMat = matGray.roi(
@@ -33,6 +34,7 @@ export const readPersonalInfo = async (
       method: "POST",
       body: JSON.stringify({
         image: base64Image,
+        students,
       }),
     });
 
