@@ -105,6 +105,28 @@ export const scoreExam = async (
 
   const letterFor = (idx: number) => String.fromCharCode(65 + idx); // 0→A,1→B…
 
+  /**
+   * Converts correctAnswer from integer string format to letter format.
+   * Supports both formats for backward compatibility:
+   * - Integer string: "0" → "A", "1" → "B", "2" → "C", etc.
+   * - Letter: "A" → "A", "B" → "B" (unchanged)
+   */
+  const normalizeCorrectAnswer = (correctAnswer: string): string => {
+    // If it's already a letter (A-Z), return as-is
+    if (/^[A-Z]$/.test(correctAnswer)) {
+      return correctAnswer;
+    }
+    
+    // Try to parse as integer string
+    const index = parseInt(correctAnswer, 10);
+    if (!isNaN(index) && index >= 0) {
+      return letterFor(index);
+    }
+    
+    // If neither format, return as-is (fallback)
+    return correctAnswer;
+  };
+
   const questions: QuestionResult[] = [];
   let totalPoints = 0;
   let totalPointsAchieved = 0;
@@ -204,7 +226,9 @@ export const scoreExam = async (
       const questionConfig = examConfig.questions[questionIndex];
       const questionId = questionConfig?.id;
       const questionLabel = questionConfig?.label || `Q${questionIndex + 1}`;
-      const correctAnswer = questionConfig?.correctAnswer || "";
+      const rawCorrectAnswer = questionConfig?.correctAnswer || "";
+      // Normalize correctAnswer from integer string ("0", "1", etc.) to letter ("A", "B", etc.)
+      const correctAnswer = normalizeCorrectAnswer(rawCorrectAnswer);
       const answerPoints = questionConfig?.points || 1;
 
       // Calculate points achieved
