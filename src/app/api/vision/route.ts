@@ -14,8 +14,6 @@ const RequestBodySchema = z.object({
         name: z.string(),
         lastname: z.string(),
         id: z.string(),
-        username: z.string(),
-        ref_id: z.string(),
       })
     )
     .optional(),
@@ -38,13 +36,8 @@ export async function POST(request: Request) {
 
     // Call OpenAI with the provided image
     // OpenAI only returns first_name, last_name, and confidence
-    // student_id, student_username, and student_ref_id are added after matching
-    const result = await callOpenAI<
-      Omit<
-        ExamPersonalInfoType,
-        "student_id" | "student_username" | "student_ref_id"
-      >
-    >(
+    // student_id is added after matching
+    const result = await callOpenAI<Omit<ExamPersonalInfoType, "student_id">>(
       [
         {
           role: "system",
@@ -78,15 +71,11 @@ Rules:
       ],
       ExamPersonalInfoSchema.omit({
         student_id: true,
-        student_username: true,
-        student_ref_id: true,
       })
     );
 
     // Match extracted name with students list to get student_id
     let studentId = "";
-    let studentUsername = "";
-    let studentRefId = "";
 
     if (
       students &&
@@ -116,8 +105,6 @@ Rules:
 
       if (matchedStudent) {
         studentId = matchedStudent.id;
-        studentUsername = matchedStudent.username;
-        studentRefId = matchedStudent.ref_id;
       }
     }
 
@@ -125,8 +112,6 @@ Rules:
     const finalResult: ExamPersonalInfoType = {
       ...result,
       student_id: studentId,
-      student_username: studentUsername,
-      student_ref_id: studentRefId,
     };
 
     console.log(finalResult);

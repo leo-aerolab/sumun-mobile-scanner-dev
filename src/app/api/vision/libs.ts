@@ -6,8 +6,6 @@ export const ExamPersonalInfoSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
   student_id: z.string(),
-  student_username: z.string(),
-  student_ref_id: z.string(),
   confidence: z.number(),
 });
 
