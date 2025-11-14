@@ -46,8 +46,8 @@ export interface ExamStudent {
   id: string;
   name: string;
   lastname: string;
-  username: string;
-  ref_id: string;
+  username?: string;
+  ref_id?: string;
 }
 
 export interface ExamConfig {
