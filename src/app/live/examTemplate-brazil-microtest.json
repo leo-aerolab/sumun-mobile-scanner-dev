@@ -1,0 +1,30 @@
+{
+  "pageDimensions": [1000, 1520],
+  "visionBlock": {
+    "top": 375,
+    "left": 115,
+    "width": 881,
+    "height": 104,
+    "extract": ["first_name"]
+  },
+  "fieldBlocks": [
+    {
+      "name": "Questions 1-5",
+      "top": 906,
+      "left": 209,
+      "width": 698,
+      "height": 592,
+      "gapX": 55,
+      "gapY": 34,
+      "numOptions": 3,
+      "numQuestions": 5
+    }
+  ],
+  "bubbleDetection": {
+    "markThresh": 0.05,
+    "minDelta": 0.038,
+    "bubbleShape": "rectangle",
+    "padding": 0.1
+  }
+}
+

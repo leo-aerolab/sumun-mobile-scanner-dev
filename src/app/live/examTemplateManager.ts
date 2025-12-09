@@ -7,6 +7,7 @@ import { ExamSignature } from "./examSignature";
 // import examTemplate1x4 from "./examTemplate-1x4.json";
 import examTemplateDiagnostic from "./examTemplate-diagnostic.json";
 import examTemplateMicrotest from "./examTemplate-microtest.json";
+import examTemplateBrazilMicrotest from "./examTemplate-brazil-microtest.json";
 
 // Template registry mapping exam signature IDs to their templates
 const TEMPLATE_REGISTRY: Record<string, ExamTemplate> = {
@@ -15,6 +16,7 @@ const TEMPLATE_REGISTRY: Record<string, ExamTemplate> = {
   // "sumun-exam-1x4": examTemplate1x4 as ExamTemplate,
   "sumun-exam-diagnostic": examTemplateDiagnostic as ExamTemplate,
   "sumun-exam-microtest": examTemplateMicrotest as ExamTemplate,
+  "br-microtest": examTemplateBrazilMicrotest as ExamTemplate,
 };
 
 /**

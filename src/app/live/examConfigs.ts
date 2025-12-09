@@ -42,6 +42,18 @@ export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
       { id: "q5", label: "Science Q5", correctAnswer: "3", points: 1 },
     ],
   },
+  "mock-brazil-microtest-local": {
+    examId: "mock-brazil-microtest-local",
+    examName: "Mock Brazil Microtest (Local)",
+    templateId: "br-microtest",
+    questions: [
+      { id: "q1", label: "Q1", correctAnswer: "A", points: 1 },
+      { id: "q2", label: "Q2", correctAnswer: "A", points: 1 },
+      { id: "q3", label: "Q3", correctAnswer: "A", points: 1 },
+      { id: "q4", label: "Q4", correctAnswer: "A", points: 1 },
+      { id: "q5", label: "Q5", correctAnswer: "A", points: 1 },
+    ],
+  },
 };
 
 /**
@@ -61,7 +73,13 @@ export const getExamConfigByTemplateId = (
   templateId: string
 ): ExamConfig | null => {
   const configs = Object.values(MOCK_EXAM_CONFIGS);
-  return configs.find((config) => config.templateId === templateId) || null;
+  const found = configs.find((config) => config.templateId === templateId);
+  if (!found) return null;
+  
+  return {
+    ...found,
+    students: MOCK_STUDENTS,
+  };
 };
 
 /**

@@ -2,7 +2,8 @@ import { CV, Mat } from "@techstark/opencv-js";
 
 import { ExamTemplate, ExamConfig } from "./types";
 
-const BUBBLE_PADDING = 0.2;
+const DEFAULT_BUBBLE_PADDING = 0.2; // Default padding for circles
+const RECTANGLE_BUBBLE_PADDING = 0.1; // Less padding for rectangles
 
 export type ROI = { x: number; y: number; w: number; h: number };
 
@@ -33,9 +34,24 @@ export type ExamResult = {
   percentage: number;
 };
 
-export const bubbleContents = (roi: ROI): ROI => {
-  const padX = Math.round(roi.w * BUBBLE_PADDING);
-  const padY = Math.round(roi.h * BUBBLE_PADDING);
+/**
+ * Extract the content area of a bubble, applying appropriate padding based on shape
+ * @param roi - The full ROI of the bubble
+ * @param bubbleShape - Shape of the bubble: "circle" (default) or "rectangle"
+ * @param customPadding - Optional custom padding (0-1). If not provided, uses defaults
+ */
+export const bubbleContents = (
+  roi: ROI,
+  bubbleShape: "circle" | "rectangle" = "circle",
+  customPadding?: number
+): ROI => {
+  // Determine padding based on shape
+  const padding = customPadding ?? (
+    bubbleShape === "rectangle" ? RECTANGLE_BUBBLE_PADDING : DEFAULT_BUBBLE_PADDING
+  );
+  
+  const padX = Math.round(roi.w * padding);
+  const padY = Math.round(roi.h * padding);
   return {
     x: roi.x + padX,
     y: roi.y + padY,
@@ -50,11 +66,13 @@ export const evaluateBubble = (
   examMat: Mat,
   roi: ROI,
   questionNumber: number,
-  bubbleNumber: number
+  bubbleNumber: number,
+  bubbleShape: "circle" | "rectangle" = "circle",
+  customPadding?: number
 ): { fill: number; base64Image: string } => {
-  const circleRoi = bubbleContents(roi);
+  const bubbleRoi = bubbleContents(roi, bubbleShape, customPadding);
   const bubbleMat = examMat.roi(
-    new cv.Rect(circleRoi.x, circleRoi.y, circleRoi.w, circleRoi.h)
+    new cv.Rect(bubbleRoi.x, bubbleRoi.y, bubbleRoi.w, bubbleRoi.h)
   );
 
   // Apply contrast enhancement to better distinguish filled vs unfilled bubbles
@@ -62,13 +80,12 @@ export const evaluateBubble = (
   bubbleMat.convertTo(contrastMat, -1, 1.3, -20); // alpha=1.3 (contrast), beta=-20 (brightness)
 
   const bubbleCanvas = document.createElement("canvas");
-  bubbleCanvas.width = circleRoi.w;
-  bubbleCanvas.height = circleRoi.h;
+  bubbleCanvas.width = bubbleRoi.w;
+  bubbleCanvas.height = bubbleRoi.h;
   cv.imshow(bubbleCanvas, contrastMat);
 
   // Convert canvas to base64 PNG
   const base64Image = bubbleCanvas.toDataURL("image/png");
-  console.log(`Bubble Image ${questionNumber}-${bubbleNumber}: ${base64Image}`);
 
   const mean = cv.mean(contrastMat)[0]; // 0‒255, 0 = black
   bubbleMat.delete();
@@ -98,6 +115,17 @@ export const scoreExam = async (
   markThresh = 0.3
 ): Promise<ExamResult> => {
   const [tplW, tplH] = template.pageDimensions;
+
+  // Use per-template threshold overrides if available, otherwise use parameter/default
+  const effectiveMarkThresh = template.bubbleDetection?.markThresh ?? markThresh;
+  const effectiveMinDelta = template.bubbleDetection?.minDelta ?? effectiveMarkThresh / 2;
+  const bubbleShape = template.bubbleDetection?.bubbleShape ?? "circle";
+  const customPadding = template.bubbleDetection?.padding;
+
+  // Log threshold configuration for debugging
+  if (template.bubbleDetection) {
+    console.log(`📊 Using template-specific settings: markThresh=${effectiveMarkThresh}, minDelta=${effectiveMinDelta}, bubbleShape=${bubbleShape}, padding=${customPadding ?? (bubbleShape === "rectangle" ? RECTANGLE_BUBBLE_PADDING : DEFAULT_BUBBLE_PADDING)}`);
+  }
 
   // Scale factors in case the image isn't exactly `pageDimensions`
   const sx = matGray.cols / tplW;
@@ -168,7 +196,9 @@ export const scoreExam = async (
           matGray,
           roi,
           q + 1,
-          o + 1
+          o + 1,
+          bubbleShape,
+          customPadding
         );
 
         optionScores.push({ option: letterFor(o), fill, base64Image });
@@ -188,10 +218,10 @@ export const scoreExam = async (
         const secondDarkest =
           optionScores.length > 1 ? optionScores[1] : { fill: 0 };
 
-        // Check for clear single selection
-        const hasValidSelection = darkest.fill >= markThresh;
+        // Check for clear single selection using effective thresholds
+        const hasValidSelection = darkest.fill >= effectiveMarkThresh;
         const hasSignificantDifference =
-          darkest.fill - secondDarkest.fill >= markThresh / 2;
+          darkest.fill - secondDarkest.fill >= effectiveMinDelta;
 
         // Create bubble objects for all options
         for (const score of optionScores) {

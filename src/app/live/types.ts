@@ -1,6 +1,6 @@
 export interface ExamTemplate {
   pageDimensions: number[];
-  readBlocks: {
+  readBlocks?: {
     name: string;
     numCharacters: number;
     type: string;
@@ -31,6 +31,14 @@ export interface ExamTemplate {
     width: number;
     height: number;
     extract: string[];
+  };
+  // Optional per-template bubble detection thresholds
+  // If not provided, defaults are used (markThresh: 0.3, minDelta: markThresh/2)
+  bubbleDetection?: {
+    markThresh?: number; // Minimum darkness (0-1) to consider bubble filled
+    minDelta?: number; // Minimum difference between darkest and second-darkest bubble
+    bubbleShape?: "circle" | "rectangle"; // Shape of bubbles: "circle" (default) or "rectangle"
+    padding?: number; // Padding percentage (0-1) to apply when extracting bubble content. Default: 0.2 for circles, 0.1 for rectangles
   };
 }
 

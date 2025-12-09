@@ -28,7 +28,6 @@ export const readPersonalInfo = async (
 
     // Convert canvas to base64 jpg
     const base64Image = visionCanvas.toDataURL("image/jpeg", 0.8);
-    console.log("base64Image", base64Image);
 
     const req = await fetch("/api/vision", {
       method: "POST",

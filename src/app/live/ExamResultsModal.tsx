@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ExamResult } from "./examScoring";
 import { ExamPersonalInfoType } from "../api/vision/libs";
+import { ExamSignature } from "./examSignature";
 import ProgressCircle from "../components/ProgressCircle";
 import ExamResultsDetail from "./ExamResultsDetail";
 import IconIncomplete from "../components/icons/IconIncomplete";
@@ -11,21 +12,25 @@ import IconIllegible from "../components/icons/IconIllegible";
 interface ExamResultsModalProps {
   examResults: ExamResult;
   personalInfo: ExamPersonalInfoType | null;
+  examType: ExamSignature | null;
   onClose: () => void;
 }
 
 export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
   examResults,
   personalInfo,
+  examType,
   onClose,
 }) => {
   const [showDetail, setShowDetail] = useState(false);
 
   // Calculate summary stats
+  // Note: If selectedAnswer is not "?" and not "", it means the detection passed markThresh and minDelta,
+  // so it should be considered legible regardless of confidence value
   let correct = 0, incorrect = 0, incomplete = 0, illegible = 0;
   examResults.questions.forEach((q) => {
     if (q.selectedAnswer === "") incomplete++;
-    else if (q.selectedAnswer === "?" || q.confidence < 0.3) illegible++;
+    else if (q.selectedAnswer === "?") illegible++; // Only mark as illegible if explicitly "?"
     else if (q.selectedAnswer === q.correctAnswer) correct++;
     else incorrect++;
   });
@@ -45,7 +50,12 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
           <button onClick={onClose} className="text-gray-500 text-2xl">
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <div className="flex-1 text-center text-lg text-gray-900">Resultados</div>
+          <div className="flex-1 text-center">
+            <div className="text-lg text-gray-900">Resultados</div>
+            {examType && (
+              <div className="text-xs text-gray-500 mt-0.5">{examType.name}</div>
+            )}
+          </div>
           <div className="w-8" /> {/* Spacer for symmetry */}
         </div>
         <div className="flex-1 overflow-y-auto">
