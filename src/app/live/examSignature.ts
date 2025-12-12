@@ -13,6 +13,7 @@ export interface ExamSignature {
     questionsPerPage?: number;
     answerOptions?: number;
     hasPersonalInfo?: boolean;
+    country?: string;
   };
 }
 
@@ -58,6 +59,21 @@ export const EXAM_SIGNATURES: ExamSignature[] = [
       questionsPerPage: 5,
       answerOptions: 4,
       hasPersonalInfo: true,
+    }
+  },
+  {
+    id: "br-microtest", 
+    name: "Brazil Microtest", 
+    description: "Brazil exam: 1 exam per page, 5 questions, 3 options",
+    markerIds: [13, 14, 15, 16, 17, 18],
+    layoutType: "3x2-grid",
+    version: "1.0",
+    metadata: {
+      totalQuestions: 5,
+      questionsPerPage: 5,
+      answerOptions: 3,
+      hasPersonalInfo: true,
+      country: "BR",
     }
   }
 ];
@@ -224,4 +240,41 @@ export const visualizeMarkerLayout = (detections: Detection[]): string => {
   `;
   
   return layout;
+};
+
+/**
+ * Check if a set of marker IDs conflicts with existing exam signatures
+ * Useful when adding new exam types to ensure no ID overlap
+ */
+export const checkMarkerIdConflict = (markerIds: number[]): {
+  hasConflict: boolean;
+  conflictingSignatures: ExamSignature[];
+} => {
+  const idSet = new Set(markerIds);
+  const conflictingSignatures: ExamSignature[] = [];
+  
+  for (const signature of EXAM_SIGNATURES) {
+    const signatureIdSet = new Set(signature.markerIds);
+    // Check if there's any overlap
+    const hasOverlap = markerIds.some(id => signatureIdSet.has(id));
+    if (hasOverlap) {
+      conflictingSignatures.push(signature);
+    }
+  }
+  
+  return {
+    hasConflict: conflictingSignatures.length > 0,
+    conflictingSignatures
+  };
+};
+
+/**
+ * Get all marker IDs currently in use across all exam signatures
+ */
+export const getAllUsedMarkerIds = (): number[] => {
+  const usedIds = new Set<number>();
+  for (const signature of EXAM_SIGNATURES) {
+    signature.markerIds.forEach(id => usedIds.add(id));
+  }
+  return Array.from(usedIds).sort((a, b) => a - b);
 }; 

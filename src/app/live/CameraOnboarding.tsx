@@ -14,17 +14,23 @@ export const CameraOnboarding: React.FC = () => {
     "granted" | "denied" | "prompt"
   > => {
     try {
+      // Check if navigator is available
+      if (typeof navigator === "undefined") {
+        return "denied";
+      }
+
+      // Check if mediaDevices API is available
+      if (!("mediaDevices" in navigator) || !navigator.mediaDevices) {
+        console.error("navigator.mediaDevices is not available");
+        return "denied"; // API not supported
+      }
+
       // Check if Permissions API is available
       if ("permissions" in navigator && "query" in navigator.permissions) {
         const permissionStatus = await navigator.permissions.query({
           name: "camera" as PermissionName,
         });
         return permissionStatus.state as "granted" | "denied" | "prompt";
-      }
-
-      // Fallback: check if mediaDevices API is available
-      if (!("mediaDevices" in navigator) || !navigator.mediaDevices) {
-        return "denied"; // API not supported
       }
 
       // Try to get existing stream without constraints to avoid prompt
@@ -81,6 +87,15 @@ export const CameraOnboarding: React.FC = () => {
   const requestPermission = async () => {
     setPermissionState("requesting");
     setError("");
+
+    // Check if mediaDevices is available
+    if (typeof navigator === "undefined" || !navigator.mediaDevices) {
+      setPermissionState("denied");
+      setError(
+        "Camera access is not available. Please ensure you're using HTTPS or localhost, and that your browser/WebView supports camera access."
+      );
+      return;
+    }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({

@@ -21,8 +21,8 @@ function getStatusIcon(selected: string, correct: string, confidence: number) {
         <IconIncomplete />
       </span>
     );
-  } else if (selected === "?" || confidence < 0.3) {
-    // Illegible
+  } else if (selected === "?") {
+    // Illegible - only if explicitly marked as "?"
     return (
       <span className="text-yellow-500 text-xl mr-4">
         <IconIllegible />
@@ -47,7 +47,7 @@ function getStatusIcon(selected: string, correct: string, confidence: number) {
 
 function getStatusColor(selected: string, correct: string, confidence: number) {
   if (selected === "") return "text-blue-600";
-  if (selected === "?" || confidence < 0.3) return "text-yellow-500";
+  if (selected === "?") return "text-yellow-500"; // Only mark as illegible if explicitly "?"
   if (selected === correct) return "text-green-600";
   return "text-red-500";
 }
@@ -112,7 +112,7 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
                     >
                       {q.selectedAnswer === ""
                         ? "-"
-                        : q.selectedAnswer === "?" || q.confidence < 0.3
+                        : q.selectedAnswer === "?"
                         ? "Ilegible"
                         : q.selectedAnswer}
                     </span>

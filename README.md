@@ -83,6 +83,71 @@ The system validates exam configs against templates to ensure:
 - Answer options are consistent
 - All required properties are present
 
+## ArUco Marker System
+
+The scanner uses **ArUco markers** (DICT_4X4_50) to identify exam types and perform perspective correction. Each exam sheet has 6 markers arranged in a 3x2 grid.
+
+### Marker ID Strategy
+
+Each exam type uses a unique set of 6 consecutive marker IDs:
+
+| Exam Type | Marker IDs | Status |
+|-----------|-----------|--------|
+| Microtest | [1, 2, 3, 4, 5, 6] | ✅ Active |
+| Diagnostic | [7, 8, 9, 10, 11, 12] | ✅ Active |
+| Brazil Microtest | [13, 14, 15, 16, 17, 18] | ⚠️ Placeholder |
+| Reserved | [19-24] | 🔒 Available |
+| Reserved | [25-30] | 🔒 Available |
+| Reserved | [31-49] | 🔒 Available |
+
+**Dictionary**: `DICT_4X4_50` (supports IDs 0-49)
+
+### Generating New Markers
+
+To generate ArUco markers for a new exam type:
+
+1. **Install Python dependencies**:
+   ```bash
+   pip install opencv-python opencv-contrib-python
+   ```
+
+2. **Generate markers**:
+   ```bash
+   # Single exam type
+   python scripts/generate_aruco_markers.py \
+     --ids 19,20,21,22,23,24 \
+     --size 200 \
+     --output markers/new-exam \
+     --name new-exam
+   
+   # Or generate all from config
+   python scripts/generate_aruco_markers.py --config scripts/markers_config.json
+   ```
+
+3. **Register the new exam signature** in `src/app/live/examSignature.ts`:
+   ```typescript
+   {
+     id: "new-exam-id",
+     name: "New Exam Type",
+     description: "Description",
+     markerIds: [19, 20, 21, 22, 23, 24],
+     layoutType: "3x2-grid",
+     version: "1.0",
+     metadata: { /* ... */ }
+   }
+   ```
+
+See `scripts/README.md` for detailed documentation on marker generation.
+
+### How Exam Type Detection Works
+
+1. **Detection**: The scanner detects all ArUco markers in the camera feed using `DICT_4X4_50`
+2. **Identification**: When exactly 6 markers are detected, it matches the set of IDs against known exam signatures
+3. **Validation**: The detected exam type is validated against the expected template from the exam config
+4. **Processing**: The appropriate template is used for bubble detection and scoring
+
+The detection logic is in `src/app/live/examSignature.ts` - the `identifyExamType()` function matches detected marker IDs against the `EXAM_SIGNATURES` array.
+
 ## Development
 
 ```bash
