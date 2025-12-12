@@ -196,7 +196,6 @@ export const CameraScanner: React.FC = () => {
   const [detectedExamType, setDetectedExamType] = useState<ExamSignature | null>(null);
   const [showCalibration, setShowCalibration] = useState(false);
   const [currentTemplate, setCurrentTemplate] = useState<import("./types").ExamTemplate | null>(null);
-  const [savedProcessedMat, setSavedProcessedMat] = useState<import("@techstark/opencv-js").Mat | null>(null);
   const [savedExamConfig, setSavedExamConfig] = useState<ExamConfig | null>(null);
   const [capturedImage, setCapturedImage] = useState<{
     canvasDataURL: string;
@@ -1380,7 +1379,7 @@ export const CameraScanner: React.FC = () => {
                 {cameraError}
               </p>
               <div className="text-xs text-gray-500 mt-4 space-y-1">
-                <p>• Ensure you're using HTTPS or localhost</p>
+                <p>• Ensure you&apos;re using HTTPS or localhost</p>
                 <p>• Check browser/WebView camera permissions</p>
                 <p>• Verify your device has a camera</p>
               </div>

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import NextImage from "next/image";
 import { CV, Mat } from "@techstark/opencv-js";
 import { ExamTemplate } from "./types";
 import { ExamResult } from "./examScoring";
-import { bubbleContents, evaluateBubble, ROI } from "./examScoring";
+import { evaluateBubble, ROI } from "./examScoring";
 
 interface TemplateCalibrationModalProps {
   template: ExamTemplate;
@@ -31,7 +32,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
   examResults,
   processedImageDataURL,
   cv,
-  processedMat,
+  processedMat: _processedMat,
   onClose,
   onSave,
 }) => {
@@ -235,12 +236,12 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
           // - selectedAnswer = darkest.option if both true, "?" if only hasValidSelection, "" otherwise
           const hasValidSelection = darkest.fill >= markThresh;
           const hasSignificantDifference = darkest.fill - secondDarkest.fill >= minDelta;
-          const wouldBeIllegible = hasValidSelection && !hasSignificantDifference;
+          const _wouldBeIllegible = hasValidSelection && !hasSignificantDifference;
           
           questionFillValues.forEach(({ option, fill, base64Image }) => {
             const isDarkest = option === darkest.option;
             const passesMarkThresh = fill >= markThresh;
-            const passesMinDelta = isDarkest ? hasSignificantDifference : false;
+            const _passesMinDelta = isDarkest ? hasSignificantDifference : false;
             
             // Selected only if: is darkest AND hasValidSelection AND hasSignificantDifference
             const isSelected = isDarkest && hasValidSelection && hasSignificantDifference;
@@ -520,7 +521,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
     if (deltas.length > 0) {
       const sortedDeltas = [...deltas].sort((a, b) => a - b);
       const minDelta = Math.min(...deltas); // Use minimum delta to be more inclusive
-      const medianDelta = sortedDeltas[Math.floor(sortedDeltas.length / 2)];
+      const _medianDelta = sortedDeltas[Math.floor(sortedDeltas.length / 2)];
       
       // Use a value that's lower than the minimum delta to catch edge cases
       // But not so low that it causes false positives
@@ -764,7 +765,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
                   className="w-full px-2 py-1 border border-gray-300 rounded"
                 />
                 <p className="text-xs text-gray-600 mt-1">
-                  <strong>Umbral mínimo de oscuridad:</strong> Proporción de píxeles oscuros (0-1) necesaria para considerar una burbuja como "marcada". 
+                  <strong>Umbral mínimo de oscuridad:</strong> Proporción de píxeles oscuros (0-1) necesaria para considerar una burbuja como &quot;marcada&quot;. 
                   Valores más bajos = más sensible (detecta marcas más claras). Valores más altos = más estricto (requiere marcas más oscuras).
                 </p>
               </div>
@@ -952,7 +953,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
                     <p className="text-xs text-gray-500">Cargando valores...</p>
                   ) : (() => {
                     const markThresh = localTemplate.bubbleDetection?.markThresh ?? 0.3;
-                    const minDelta = localTemplate.bubbleDetection?.minDelta ?? markThresh / 2;
+                    const _minDelta = localTemplate.bubbleDetection?.minDelta ?? markThresh / 2;
                     
                     // Group by question
                     const questions = new Map<number, BubbleFillData[]>();
@@ -1051,11 +1052,14 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
                                   </div>
                                   {data.base64Image && (
                                     <div className="mt-2 pt-2 border-t border-gray-400">
-                                      <img
+                                      <NextImage
                                         src={data.base64Image}
                                         alt={`Burbuja ${data.option} Q${qIndex + 1}`}
+                                        width={80}
+                                        height={80}
                                         className="max-w-full h-auto border border-gray-500 rounded bg-white"
                                         style={{ maxHeight: "80px", imageRendering: "pixelated" }}
+                                        unoptimized
                                       />
                                     </div>
                                   )}
@@ -1117,4 +1121,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
     </div>
   );
 };
+
+
+
 

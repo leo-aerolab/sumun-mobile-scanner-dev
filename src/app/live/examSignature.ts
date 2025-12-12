@@ -250,7 +250,7 @@ export const checkMarkerIdConflict = (markerIds: number[]): {
   hasConflict: boolean;
   conflictingSignatures: ExamSignature[];
 } => {
-  const idSet = new Set(markerIds);
+  const _idSet = new Set(markerIds);
   const conflictingSignatures: ExamSignature[] = [];
   
   for (const signature of EXAM_SIGNATURES) {

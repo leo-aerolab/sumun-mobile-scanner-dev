@@ -13,7 +13,7 @@ interface ExamResultsDetailProps {
   onClose: () => void;
 }
 
-function getStatusIcon(selected: string, correct: string, confidence: number) {
+function getStatusIcon(selected: string, correct: string, _confidence: number) {
   if (selected === "") {
     // Not answered
     return (
@@ -45,7 +45,7 @@ function getStatusIcon(selected: string, correct: string, confidence: number) {
   }
 }
 
-function getStatusColor(selected: string, correct: string, confidence: number) {
+function getStatusColor(selected: string, correct: string, _confidence: number) {
   if (selected === "") return "text-blue-600";
   if (selected === "?") return "text-yellow-500"; // Only mark as illegible if explicitly "?"
   if (selected === correct) return "text-green-600";
