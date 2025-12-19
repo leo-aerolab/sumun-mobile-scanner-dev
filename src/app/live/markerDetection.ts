@@ -209,6 +209,23 @@ export const detectArucoMarkers = (
 };
 
 /**
+ * Scale detection coordinates by a factor (for adaptive resolution)
+ */
+export const scaleDetections = (
+  detections: Detection[],
+  scaleFactor: number
+): Detection[] => {
+  return detections.map((det) => ({
+    id: det.id,
+    corners: det.corners.map(([x, y]) => [
+      x * scaleFactor,
+      y * scaleFactor,
+    ]) as [number, number][],
+    center: [det.center[0] * scaleFactor, det.center[1] * scaleFactor],
+  }));
+};
+
+/**
  * Clean up ArUco detector resources
  */
 export const cleanupArucoDetector = (detectorObjects: {

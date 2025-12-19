@@ -12,6 +12,7 @@ import {
   detectArucoMarkers,
   Detection,
   initializeArucoDetector,
+  scaleDetections,
 } from "./markerDetection";
 import { playSuccess } from "./soundUtils";
 import {
@@ -31,6 +32,15 @@ import { preprocessForMorphology } from "./imageProcessing";
 
 // Debug overlay mode - enable with NEXT_PUBLIC_DEBUG_TEMPLATE=true
 const DEBUG_TEMPLATE_OVERLAY = process.env.NEXT_PUBLIC_DEBUG_TEMPLATE === 'true';
+
+// Adaptive detection settings for performance optimization on low-end devices
+const DETECTION_CONFIG = {
+  targetFrameTime: 1000 / 10,         // 1000 / targetFPS (ms)
+  sampleSize: 5,                    // Number of frames to average for adaptive scaling
+  scaleSteps: [1, 0.667],           // 1080p → 720p (skip middle, not worth it)
+  minShortEdge: 720,                // Minimum 720p (1280x720 or 720x1280)
+  maxLongEdge: 3840,                // Cap at 4K (3840x2160)
+};
 
 function sendMessageToWebView(type: string, data: any) {
   console.log("Sending message to webview:", type, data);
@@ -234,6 +244,10 @@ export const CameraScanner: React.FC = () => {
   const isDetectionActiveRef = useRef(true);
   const facingModeRef = useRef<"user" | "environment">("environment");
   const examConfigRef = useRef<ExamConfig | null>(null);
+
+  // Refs for adaptive detection scaling (performance optimization)
+  const detectionTimesRef = useRef<number[]>([]);
+  const currentScaleIndexRef = useRef<number>(0);
 
   // Load exam config on component mount
   useEffect(() => {
@@ -701,6 +715,10 @@ export const CameraScanner: React.FC = () => {
   const setupDetection = () => {
     if (!opencvRef.current || !videoRef.current || !canvasRef.current) return;
 
+    // Reset adaptive scaling when setting up detection (e.g., camera change)
+    currentScaleIndexRef.current = 0;
+    detectionTimesRef.current = [];
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
@@ -738,11 +756,23 @@ export const CameraScanner: React.FC = () => {
       let src: any = null;
       let gray: any = null;
 
+      let processedMat: any = null;
+
       try {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          // Cap canvas at 4K to prevent insane resolutions from high-end cameras
+          const videoW = video.videoWidth;
+          const videoH = video.videoHeight;
+          const maxEdge = Math.max(videoW, videoH);
+          const capScale = maxEdge > DETECTION_CONFIG.maxLongEdge
+            ? DETECTION_CONFIG.maxLongEdge / maxEdge
+            : 1;
+          const canvasW = Math.round(videoW * capScale);
+          const canvasH = Math.round(videoH * capScale);
+
+          canvas.width = canvasW;
+          canvas.height = canvasH;
+          ctx.drawImage(video, 0, 0, canvasW, canvasH);
 
           // Check if all required objects are valid
           if (!detector || !cornersVec || !idsMat) {
@@ -756,21 +786,89 @@ export const CameraScanner: React.FC = () => {
             return;
           }
 
+          const fullWidth = src.cols;
+          const fullHeight = src.rows;
+
+          // Get current scale factor (adaptive based on detection performance)
+          const scaleIndex = currentScaleIndexRef.current;
+          const scaleFactor = DETECTION_CONFIG.scaleSteps[scaleIndex];
+
+          // Calculate detection dimensions
+          let detectionWidth = Math.round(fullWidth * scaleFactor);
+          let detectionHeight = Math.round(fullHeight * scaleFactor);
+
+          // Ensure minimum 720p (short edge >= 720)
+          const shortEdge = Math.min(detectionWidth, detectionHeight);
+          if (shortEdge < DETECTION_CONFIG.minShortEdge && scaleFactor < 1) {
+            const adjustedScale = DETECTION_CONFIG.minShortEdge / Math.min(fullWidth, fullHeight);
+            detectionWidth = Math.round(fullWidth * adjustedScale);
+            detectionHeight = Math.round(fullHeight * adjustedScale);
+          }
+
+          // Resize if not at full resolution
+          if (scaleFactor < 1) {
+            processedMat = new opencvRef.current.Mat();
+            opencvRef.current.resize(
+              src,
+              processedMat,
+              new opencvRef.current.Size(detectionWidth, detectionHeight)
+            );
+          } else {
+            processedMat = src;
+          }
+
           gray = new opencvRef.current.Mat();
           opencvRef.current.cvtColor(
-            src,
+            processedMat,
             gray,
             opencvRef.current.COLOR_RGBA2GRAY
           );
 
+          // Time the detection for adaptive scaling
+          const detectStart = performance.now();
+
           // Detect ArUco markers using helper function
-          const dets = detectArucoMarkers(
+          let dets = detectArucoMarkers(
             opencvRef.current,
             detector,
             cornersVec,
             idsMat,
             gray
           );
+
+          const detectTime = performance.now() - detectStart;
+
+          // Log detection stats
+          if (dets.length > 0) {
+            console.log(`Detected ${dets.length} markers in ${detectTime.toFixed(0)}ms (scale: ${scaleFactor}, res: ${detectionWidth}x${detectionHeight})`);
+          }
+
+          // Scale coordinates back to full resolution if we downscaled
+          if (dets.length > 0 && scaleFactor < 1) {
+            dets = scaleDetections(dets, 1 / scaleFactor);
+          }
+
+          // Update adaptive scaling based on detection time
+          detectionTimesRef.current.push(detectTime);
+          if (detectionTimesRef.current.length > DETECTION_CONFIG.sampleSize) {
+            detectionTimesRef.current.shift();
+          }
+
+          if (detectionTimesRef.current.length === DETECTION_CONFIG.sampleSize) {
+            const avgTime = detectionTimesRef.current.reduce((a, b) => a + b, 0) / DETECTION_CONFIG.sampleSize;
+
+            if (avgTime > DETECTION_CONFIG.targetFrameTime && scaleIndex < DETECTION_CONFIG.scaleSteps.length - 1) {
+              // Too slow, reduce resolution
+              currentScaleIndexRef.current = scaleIndex + 1;
+              detectionTimesRef.current = []; // Reset samples after scale change
+              console.log(`Detection too slow (${avgTime.toFixed(0)}ms), scaling down to ${DETECTION_CONFIG.scaleSteps[scaleIndex + 1]}`);
+            } else if (avgTime < DETECTION_CONFIG.targetFrameTime * 0.5 && scaleIndex > 0) {
+              // Fast enough, try increasing resolution
+              currentScaleIndexRef.current = scaleIndex - 1;
+              detectionTimesRef.current = []; // Reset samples after scale change
+              console.log(`Detection fast (${avgTime.toFixed(0)}ms), scaling up to ${DETECTION_CONFIG.scaleSteps[scaleIndex - 1]}`);
+            }
+          }
 
           setDetections(dets);
 
@@ -800,6 +898,10 @@ export const CameraScanner: React.FC = () => {
       } finally {
         // Always clean up Mat objects
         try {
+          // Clean up processedMat only if it's different from src
+          if (processedMat && processedMat !== src && processedMat.delete) {
+            processedMat.delete();
+          }
           if (src && src.delete) src.delete();
           if (gray && gray.delete) gray.delete();
         } catch (cleanupError) {
