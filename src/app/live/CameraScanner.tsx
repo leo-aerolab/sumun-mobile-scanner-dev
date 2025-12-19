@@ -135,6 +135,7 @@ function drawDebugOverlay(
       // Calculate cell dimensions
       const cellW = (width - (gapX || 0) * (numOptions - 1)) / numOptions;
       const cellH = (height - (gapY || 0) * (numQuestions - 1)) / numQuestions;
+      const bubbleShape = template.bubbleDetection?.bubbleShape ?? "circle";
       
       // Draw individual bubble ROIs
       for (let q = 0; q < numQuestions; q++) {
@@ -150,16 +151,28 @@ function drawDebugOverlay(
           
           ctx.strokeStyle = isSelected ? "#00ff00" : "#888888";
           ctx.lineWidth = 1;
-          ctx.strokeRect(
-            bubbleX * scaleX,
-            bubbleY * scaleY,
-            cellW * scaleX,
-            cellH * scaleY
-          );
+          
+          if (bubbleShape === "circle") {
+            // Draw circle - use the smaller dimension to ensure it fits
+            const centerX = (bubbleX + cellW / 2) * scaleX;
+            const centerY = (bubbleY + cellH / 2) * scaleY;
+            const radius = Math.min(cellW * scaleX, cellH * scaleY) / 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+          } else {
+            // Draw rectangle
+            ctx.strokeRect(
+              bubbleX * scaleX,
+              bubbleY * scaleY,
+              cellW * scaleX,
+              cellH * scaleY
+            );
+          }
           
           // Log ROI coordinates for first question only (to avoid spam)
           if (q === 0 && o === 0) {
-            console.log(`📋 DEBUG: Bubble ROI example (Q${q + 1}, Option ${String.fromCharCode(65 + o)}): x=${bubbleX}, y=${bubbleY}, w=${cellW}, h=${cellH}`);
+            console.log(`📋 DEBUG: Bubble ROI example (Q${q + 1}, Option ${String.fromCharCode(65 + o)}): x=${bubbleX}, y=${bubbleY}, w=${cellW}, h=${cellH}, shape=${bubbleShape}`);
           }
         }
         

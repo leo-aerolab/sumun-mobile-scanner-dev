@@ -75,6 +75,36 @@ export const EXAM_SIGNATURES: ExamSignature[] = [
       hasPersonalInfo: true,
       country: "BR",
     }
+  },
+  {
+    id: "br-microtest-2", 
+    name: "Brazil Microtest 2", 
+    description: "Brazil exam 2: 1 exam per page, 5 questions, 4 options",
+    markerIds: [31, 32, 33, 34, 35, 36],
+    layoutType: "3x2-grid",
+    version: "1.0",
+    metadata: {
+      totalQuestions: 5,
+      questionsPerPage: 5,
+      answerOptions: 4,
+      hasPersonalInfo: true,
+      country: "BR",
+    }
+  },
+  {
+    id: "br-microtest-3", 
+    name: "Brazil Microtest 3", 
+    description: "Brazil exam 3: 1 exam per page, 5 questions, 5 options",
+    markerIds: [37, 38, 39, 40, 41, 42],
+    layoutType: "3x2-grid",
+    version: "1.0",
+    metadata: {
+      totalQuestions: 5,
+      questionsPerPage: 5,
+      answerOptions: 5,
+      hasPersonalInfo: true,
+      country: "BR",
+    }
   }
 ];
 

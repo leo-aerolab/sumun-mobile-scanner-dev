@@ -48,10 +48,34 @@ export const MOCK_EXAM_CONFIGS: Record<string, ExamConfig> = {
     templateId: "br-microtest",
     questions: [
       { id: "q1", label: "Q1", correctAnswer: "A", points: 1 },
-      { id: "q2", label: "Q2", correctAnswer: "A", points: 1 },
-      { id: "q3", label: "Q3", correctAnswer: "A", points: 1 },
-      { id: "q4", label: "Q4", correctAnswer: "A", points: 1 },
+      { id: "q2", label: "Q2", correctAnswer: "B", points: 1 },
+      { id: "q3", label: "Q3", correctAnswer: "C", points: 1 },
+      { id: "q4", label: "Q4", correctAnswer: "C", points: 1 },
+      { id: "q5", label: "Q5", correctAnswer: "C", points: 1 },
+    ],
+  },
+  "mock-brazil-microtest-2-local": {
+    examId: "mock-brazil-microtest-2-local",
+    examName: "Mock Brazil Microtest 2 (Local)",
+    templateId: "br-microtest-2",
+    questions: [
+      { id: "q1", label: "Q1", correctAnswer: "A", points: 1 },
+      { id: "q2", label: "Q2", correctAnswer: "B", points: 1 },
+      { id: "q3", label: "Q3", correctAnswer: "C", points: 1 },
+      { id: "q4", label: "Q4", correctAnswer: "D", points: 1 },
       { id: "q5", label: "Q5", correctAnswer: "A", points: 1 },
+    ],
+  },
+  "mock-brazil-microtest-3-local": {
+    examId: "mock-brazil-microtest-3-local",
+    examName: "Mock Brazil Microtest 3 (Local)",
+    templateId: "br-microtest-3",
+    questions: [
+      { id: "q1", label: "Q1", correctAnswer: "A", points: 1 },
+      { id: "q2", label: "Q2", correctAnswer: "B", points: 1 },
+      { id: "q3", label: "Q3", correctAnswer: "C", points: 1 },
+      { id: "q4", label: "Q4", correctAnswer: "D", points: 1 },
+      { id: "q5", label: "Q5", correctAnswer: "E", points: 1 },
     ],
   },
 };

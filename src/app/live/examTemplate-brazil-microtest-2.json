@@ -1,7 +1,7 @@
 {
   "pageDimensions": [1000, 1520],
   "visionBlock": {
-    "top": 100,
+    "top": 375,
     "left": 115,
     "width": 881,
     "height": 104,
@@ -10,23 +10,20 @@
   "fieldBlocks": [
     {
       "name": "Questions 1-5",
-      "top": 899,
-      "left": 330,
-      "width": 384,
-      "height": 527,
-      "gapX": 60,
-      "gapY": 69,
-      "numOptions": 3,
+      "top": 1057,
+      "left": 387,
+      "width": 321,
+      "height": 360,
+      "gapX": 20,
+      "gapY": 34,
+      "numOptions": 4,
       "numQuestions": 5
     }
   ],
   "bubbleDetection": {
     "markThresh": 0.05,
     "minDelta": 0.038,
-    "bubbleShape": "rectangle",
+    "bubbleShape": "circle",
     "padding": 0.1
   }
 }
-
-
-

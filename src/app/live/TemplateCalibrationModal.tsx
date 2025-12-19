@@ -103,6 +103,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
         if (showBubbles) {
           const cellW = (width - (gapX || 0) * (numOptions - 1)) / numOptions;
           const cellH = (height - (gapY || 0) * (numQuestions - 1)) / numQuestions;
+          const bubbleShape = localTemplate.bubbleDetection?.bubbleShape ?? "circle";
           let questionIndex = blockIdx === 0 ? 0 : localTemplate.fieldBlocks.slice(0, blockIdx).reduce((sum, b) => sum + (b.numQuestions || 0), 0);
 
           for (let q = 0; q < numQuestions; q++) {
@@ -117,12 +118,24 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
               
               ctx.strokeStyle = isSelected ? "#00ff00" : "#888888";
               ctx.lineWidth = 1;
-              ctx.strokeRect(
-                bubbleX * scaleX,
-                bubbleY * scaleY,
-                cellW * scaleX,
-                cellH * scaleY
-              );
+              
+              if (bubbleShape === "circle") {
+                // Draw circle - use the smaller dimension to ensure it fits
+                const centerX = (bubbleX + cellW / 2) * scaleX;
+                const centerY = (bubbleY + cellH / 2) * scaleY;
+                const radius = Math.min(cellW * scaleX, cellH * scaleY) / 2;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+              } else {
+                // Draw rectangle
+                ctx.strokeRect(
+                  bubbleX * scaleX,
+                  bubbleY * scaleY,
+                  cellW * scaleX,
+                  cellH * scaleY
+                );
+              }
             }
             questionIndex++;
           }
