@@ -247,7 +247,11 @@ export const CameraScanner: React.FC = () => {
 
   // Refs for adaptive detection scaling (performance optimization)
   const detectionTimesRef = useRef<number[]>([]);
-  const currentScaleIndexRef = useRef<number>(0);
+  const currentScaleIndexRef = useRef<number>(
+    typeof window !== 'undefined' && localStorage.getItem('detectionScaleIndex') !== null
+      ? parseInt(localStorage.getItem('detectionScaleIndex')!, 10)
+      : 0
+  );
 
   // Load exam config on component mount
   useEffect(() => {
@@ -715,8 +719,7 @@ export const CameraScanner: React.FC = () => {
   const setupDetection = () => {
     if (!opencvRef.current || !videoRef.current || !canvasRef.current) return;
 
-    // Reset adaptive scaling when setting up detection (e.g., camera change)
-    currentScaleIndexRef.current = 0;
+    // Reset detection time samples (but keep scale index - it's persisted across sessions)
     detectionTimesRef.current = [];
 
     const video = videoRef.current;
@@ -860,11 +863,13 @@ export const CameraScanner: React.FC = () => {
             if (avgTime > DETECTION_CONFIG.targetFrameTime && scaleIndex < DETECTION_CONFIG.scaleSteps.length - 1) {
               // Too slow, reduce resolution
               currentScaleIndexRef.current = scaleIndex + 1;
+              localStorage.setItem('detectionScaleIndex', String(scaleIndex + 1));
               detectionTimesRef.current = []; // Reset samples after scale change
               console.log(`Detection too slow (${avgTime.toFixed(0)}ms), scaling down to ${DETECTION_CONFIG.scaleSteps[scaleIndex + 1]}`);
             } else if (avgTime < DETECTION_CONFIG.targetFrameTime * 0.5 && scaleIndex > 0) {
               // Fast enough, try increasing resolution
               currentScaleIndexRef.current = scaleIndex - 1;
+              localStorage.setItem('detectionScaleIndex', String(scaleIndex - 1));
               detectionTimesRef.current = []; // Reset samples after scale change
               console.log(`Detection fast (${avgTime.toFixed(0)}ms), scaling up to ${DETECTION_CONFIG.scaleSteps[scaleIndex - 1]}`);
             }
@@ -879,8 +884,6 @@ export const CameraScanner: React.FC = () => {
           } else {
             setCurrentExamType(null);
           }
-
-          opencvRef.current.imshow(canvas, src);
 
           // Auto-trigger capture when 6 markers detected (only if conditions are met)
           // Use refs to avoid stale closure values
