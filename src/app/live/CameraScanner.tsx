@@ -1314,6 +1314,7 @@ export const CameraScanner: React.FC = () => {
               processedImageDataURL={capturedImage.processedDataURL || capturedImage.fieldBlocksImage || ""}
               cv={opencvRef.current}
               processedMat={null}
+              personalInfo={personalInfo}
               onClose={() => setShowCalibration(false)}
               onSave={async (updatedTemplate) => {
                 setCurrentTemplate(updatedTemplate);
