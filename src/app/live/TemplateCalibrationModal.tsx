@@ -6,6 +6,7 @@ import { CV, Mat } from "@techstark/opencv-js";
 import { ExamTemplate } from "./types";
 import { ExamResult } from "./examScoring";
 import { evaluateBubble, ROI } from "./examScoring";
+import { ExamPersonalInfoType } from "../api/vision/libs";
 
 interface TemplateCalibrationModalProps {
   template: ExamTemplate;
@@ -13,6 +14,7 @@ interface TemplateCalibrationModalProps {
   processedImageDataURL: string;
   cv: CV | null;
   processedMat: Mat | null;
+  personalInfo: ExamPersonalInfoType | null;
   onClose: () => void;
   onSave: (updatedTemplate: ExamTemplate) => void;
 }
@@ -33,6 +35,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
   processedImageDataURL,
   cv,
   processedMat: _processedMat,
+  personalInfo,
   onClose,
   onSave,
 }) => {
@@ -704,6 +707,68 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
                 <p className="text-xs text-gray-600 mb-3">
                   Área donde se encuentra el nombre del estudiante u otra información personal que se extraerá con OCR.
                 </p>
+                
+                {/* Show extracted fields from template */}
+                <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded">
+                  <p className="text-xs font-semibold text-blue-900 mb-1">Campos a extraer:</p>
+                  <div className="text-xs text-blue-800">
+                    {localTemplate.visionBlock.extract && localTemplate.visionBlock.extract.length > 0 ? (
+                      <ul className="list-disc list-inside space-y-0.5">
+                        {localTemplate.visionBlock.extract.map((field, idx) => (
+                          <li key={idx}>
+                            {field === "first_name" ? "Nombre (first_name)" : 
+                             field === "last_name" ? "Apellido (last_name)" : 
+                             field === "student_id" ? "ID Estudiante (student_id)" :
+                             field === "evaluation_number" ? "Número de Evaluación (evaluation_number)" :
+                             field}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-red-600">⚠️ No hay campos configurados para extraer</span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Show extracted personal info */}
+                {personalInfo && (
+                  <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded">
+                    <p className="text-xs font-semibold text-green-900 mb-1">Información extraída:</p>
+                    <div className="text-xs text-green-800 space-y-1">
+                      {localTemplate.visionBlock.extract?.includes("first_name") && (
+                        <div>
+                          <span className="font-semibold">Nombre:</span> {personalInfo.first_name || <span className="text-red-600 italic">(no extraído)</span>}
+                        </div>
+                      )}
+                      {localTemplate.visionBlock.extract?.includes("last_name") && (
+                        <div>
+                          <span className="font-semibold">Apellido:</span> {personalInfo.last_name || <span className="text-red-600 italic">(no extraído)</span>}
+                        </div>
+                      )}
+                      {localTemplate.visionBlock.extract?.includes("student_id") && personalInfo.student_id && (
+                        <div>
+                          <span className="font-semibold">ID:</span> {personalInfo.student_id}
+                        </div>
+                      )}
+                      {localTemplate.visionBlock.extract?.includes("evaluation_number") && (
+                        <div className="text-gray-600 italic">
+                          (evaluation_number no disponible en personalInfo)
+                        </div>
+                      )}
+                      <div className="mt-1 pt-1 border-t border-green-300">
+                        <span className="font-semibold">Confianza:</span> {(personalInfo.confidence * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {!personalInfo && (
+                  <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                    <p className="text-xs text-yellow-800">
+                      ⚠️ No se ha extraído información personal aún. Asegúrate de que el área del visionBlock cubra correctamente los campos de nombre y apellido.
+                    </p>
+                  </div>
+                )}
                 
                 <div>
                   <label className="block text-xs font-semibold text-gray-900 mb-1">Top</label>

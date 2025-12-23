@@ -1,17 +1,17 @@
 {
   "pageDimensions": [1000, 1520],
   "visionBlock": {
-    "top": 375,
-    "left": 115,
-    "width": 881,
-    "height": 104,
-    "extract": ["first_name"]
+    "top": 189,
+    "left": 0,
+    "width": 1000,
+    "height": 413,
+    "extract": ["first_name", "last_name"]
   },
   "fieldBlocks": [
     {
       "name": "Questions 1-5",
       "top": 1057,
-      "left": 387,
+      "left": 367,
       "width": 321,
       "height": 360,
       "gapX": 20,
@@ -27,3 +27,4 @@
     "padding": 0.1
   }
 }
+

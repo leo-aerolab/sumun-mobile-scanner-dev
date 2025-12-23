@@ -1,11 +1,11 @@
 {
   "pageDimensions": [1000, 1520],
   "visionBlock": {
-    "top": 100,
-    "left": 115,
-    "width": 881,
-    "height": 104,
-    "extract": ["first_name"]
+    "top": 57,
+    "left": 0,
+    "width": 1000,
+    "height": 413,
+    "extract": ["first_name", "last_name"]
   },
   "fieldBlocks": [
     {
