@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ExamResult } from "./examScoring";
 import { ExamPersonalInfoType } from "../api/vision/libs";
 import { ExamSignature } from "./examSignature";
@@ -22,6 +23,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
   examType,
   onClose,
 }) => {
+  const t = useTranslations();
   const [showDetail, setShowDetail] = useState(false);
 
   // Calculate summary stats
@@ -51,7 +53,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
             <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
           <div className="flex-1 text-center">
-            <div className="text-lg text-gray-900">Resultados</div>
+            <div className="text-lg text-gray-900">{t("common.results")}</div>
             {examType && (
               <div className="text-xs text-gray-500 mt-0.5">{examType.name}</div>
             )}
@@ -66,7 +68,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
               className="text-gray-600 mt-2 mb-4 font-medium hover:underline"
               onClick={() => setShowDetail(true)}
             >
-              Ver detalle
+              {t("common.viewDetail")}
             </button>
           </div>
           {/* Student Info */}
@@ -89,7 +91,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
               </div>
               <div className="text-gray-500 text-sm mt-1 flex gap-2">
                 <IconCorrect />
-                Correctas
+                {t("examResults.correct")}
               </div>
             </div>
             <div className="bg-gray-100 rounded-xl flex flex-col items-center py-4">
@@ -98,7 +100,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
               </div>
               <div className="text-gray-500 text-sm mt-1 flex gap-2">
                 <IconIncorrect />
-                Incorrectas
+                {t("examResults.incorrect")}
               </div>
             </div>
             <div className="bg-gray-100 rounded-xl flex flex-col items-center py-4">
@@ -107,7 +109,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
               </div>
               <div className="text-gray-500 text-sm mt-1 flex gap-2">
                 <IconIncomplete />
-                Incompletas
+                {t("examResults.incomplete")}
               </div>
             </div>
             <div className="bg-gray-100 rounded-xl flex flex-col items-center py-4">
@@ -116,7 +118,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
               </div>
               <div className="text-gray-500 text-sm mt-1 flex gap-2">
                 <IconIllegible />
-                Ilegibles
+                {t("examResults.illegible")}
               </div>
             </div>
           </div>
@@ -127,7 +129,7 @@ export const ExamResultsModal: React.FC<ExamResultsModalProps> = ({
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg transition-colors"
             onClick={onClose}
           >
-            Continuar escaneando
+            {t("common.continueScanning")}
           </button>
         </div>
       </div>

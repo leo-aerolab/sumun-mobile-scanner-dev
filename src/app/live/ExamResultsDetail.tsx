@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import { ExamResult } from "./examScoring";
 import { ExamPersonalInfoType } from "../api/vision/libs";
 import ProgressCircle from "../components/ProgressCircle";
@@ -56,6 +57,7 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
   examResults,
   onClose,
 }) => {
+  const t = useTranslations();
   const percentage = examResults.percentage;
 
   return (
@@ -80,7 +82,7 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
             </svg>
           </button>
           <div className="flex-1 text-center text-lg text-gray-900">
-            Detalle de resultados
+            {t("examResults.detailTitle")}
           </div>
           <div className="w-8" /> {/* Spacer for symmetry */}
         </div>
@@ -102,7 +104,7 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
                 </div>
                 <div className="text-sm text-gray-500 flex gap-4 justify-between">
                   <span>
-                    Respuesta:{" "}
+                    {t("examResults.answer")}:{" "}
                     <span
                       className={getStatusColor(
                         q.selectedAnswer,
@@ -113,12 +115,12 @@ export const ExamResultsDetail: React.FC<ExamResultsDetailProps> = ({
                       {q.selectedAnswer === ""
                         ? "-"
                         : q.selectedAnswer === "?"
-                        ? "Ilegible"
+                        ? t("examResults.illegibleLabel")
                         : q.selectedAnswer}
                     </span>
                   </span>
                   <span>
-                    Respuesta correcta:{" "}
+                    {t("examResults.correctAnswer")}:{" "}
                     <span className="text-gray-900">{q.correctAnswer}</span>
                   </span>
                 </div>

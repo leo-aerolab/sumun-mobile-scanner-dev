@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:tunnel": "ngrok http 3000",
+    "dev:tunnel:cloudflare": "cloudflared tunnel --url http://localhost:3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -12,6 +13,7 @@
   "dependencies": {
     "@techstark/opencv-js": "4.11.0-release.1",
     "next": "15.3.8",
+    "next-intl": "^4.6.1",
     "openai": "^5.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

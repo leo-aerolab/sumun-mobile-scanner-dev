@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import { Detection } from "./markerDetection";
 import { ExamSignature } from "./examSignature";
 
@@ -13,6 +14,7 @@ export const CameraOverlay: React.FC<CameraOverlayProps> = ({
   isProcessing,
   currentExamType,
 }) => {
+  const t = useTranslations();
   // Define the expected marker IDs based on current exam type or default to 1x1
   const expectedMarkers = currentExamType ? currentExamType.markerIds : [22, 10, 30, 41, 34, 15];
   
@@ -124,7 +126,7 @@ export const CameraOverlay: React.FC<CameraOverlayProps> = ({
         {isProcessing && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-white/40 text-4xl font-bold tracking-wider">
-              Procesando...
+              {t("common.processing")}
             </div>
           </div>
         )}

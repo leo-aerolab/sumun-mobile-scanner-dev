@@ -1191,7 +1191,7 @@ export const TemplateCalibrationModal: React.FC<TemplateCalibrationModalProps> =
               onClick={handleSave}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Guardar Cambios
+Guardar Cambios
             </button>
           </div>
         </div>

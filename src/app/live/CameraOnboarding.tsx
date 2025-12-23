@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { CameraScanner } from "./CameraScanner";
 
 export const CameraOnboarding: React.FC = () => {
+  const t = useTranslations();
   const [permissionState, setPermissionState] = useState<
     "initial" | "requesting" | "granted" | "denied"
   >("initial");
@@ -70,9 +72,7 @@ export const CameraOnboarding: React.FC = () => {
           break;
         case "denied":
           setPermissionState("denied");
-          setError(
-            "Camera access was previously denied. Please allow camera access in your browser settings."
-          );
+          setError(t("cameraOnboarding.deniedMessage"));
           break;
         case "prompt":
         default:
@@ -82,7 +82,7 @@ export const CameraOnboarding: React.FC = () => {
     };
 
     initializePermissionCheck();
-  }, []);
+  }, [t]);
 
   const requestPermission = async () => {
     setPermissionState("requesting");
@@ -91,9 +91,7 @@ export const CameraOnboarding: React.FC = () => {
     // Check if mediaDevices is available
     if (typeof navigator === "undefined" || !navigator.mediaDevices) {
       setPermissionState("denied");
-      setError(
-        "Camera access is not available. Please ensure you're using HTTPS or localhost, and that your browser/WebView supports camera access."
-      );
+      setError(t("cameraOnboarding.notAvailable"));
       return;
     }
 
@@ -111,18 +109,16 @@ export const CameraOnboarding: React.FC = () => {
       setPermissionState("denied");
       if (error instanceof Error) {
         if (error.name === "NotAllowedError") {
-          setError(
-            "Camera access was denied. Please allow camera access in your browser settings and try again."
-          );
+          setError(t("cameraOnboarding.notAllowed"));
         } else if (error.name === "NotFoundError") {
-          setError("No camera found on this device.");
+          setError(t("cameraOnboarding.notFound"));
         } else if (error.name === "NotSupportedError") {
-          setError("Camera access is not supported in this browser.");
+          setError(t("cameraOnboarding.notSupported"));
         } else {
-          setError(`Camera error: ${error.message}`);
+          setError(t("cameraOnboarding.cameraError", { error: error.message }));
         }
       } else {
-        setError("An unknown error occurred while accessing the camera.");
+        setError(t("cameraOnboarding.unknownError"));
       }
     }
   };
@@ -161,23 +157,22 @@ export const CameraOnboarding: React.FC = () => {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Sumun Check</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("cameraOnboarding.title")}</h1>
           <p className="text-gray-600">
-            Necesitamos acceder a tu cámara para escanear los exámenes.
+            {t("cameraOnboarding.description")}
           </p>
         </div>
 
         {permissionState === "initial" && (
           <>
             <p className="text-gray-600 mb-6">
-              Hacé clic en el botón de abajo para permitir el acceso a la
-              cámara.
+              {t("cameraOnboarding.permissionPrompt")}
             </p>
             <button
               onClick={requestPermission}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Permitir acceso a la cámara
+              {t("cameraOnboarding.allowCamera")}
             </button>
           </>
         )}
@@ -188,7 +183,7 @@ export const CameraOnboarding: React.FC = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             </div>
             <p className="text-gray-600">
-              Esperá un momento... Estamos pidiendo acceso a la cámara.
+              {t("cameraOnboarding.requesting")}
             </p>
           </>
         )}
@@ -213,7 +208,7 @@ export const CameraOnboarding: React.FC = () => {
               </div>
             </div>
             <h3 className="text-lg font-semibold text-red-800 mb-2">
-              No pudimos acceder a tu cámara.
+              {t("cameraOnboarding.denied")}
             </h3>
             {error && (
               <p className="text-sm text-red-600 mb-4 bg-red-50 p-3 rounded">
@@ -224,7 +219,7 @@ export const CameraOnboarding: React.FC = () => {
               onClick={requestPermission}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
-              Intentar de nuevo
+              {t("common.tryAgain")}
             </button>
           </>
         )}

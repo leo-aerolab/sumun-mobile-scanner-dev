@@ -1,0 +1,53 @@
+{
+  "common": {
+    "start": "Começar",
+    "continue": "Continuar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "tryAgain": "Tentar novamente",
+    "processing": "Processando...",
+    "results": "Resultados",
+    "detail": "Detalhe",
+    "viewDetail": "Ver detalhe",
+    "continueScanning": "Continuar escaneando"
+  },
+  "cameraInstructions": {
+    "title": "Dicas para escanear",
+    "tip1": "Certifique-se de que há iluminação suficiente.",
+    "tip2": "Evite dobras na folha.",
+    "tip3": "Evite sombras projetadas sobre a folha.",
+    "tip4": "Verifique a inclinação correta da folha."
+  },
+  "cameraOnboarding": {
+    "title": "Sumun Check",
+    "description": "Precisamos acessar sua câmera para escanear os exames.",
+    "permissionPrompt": "Clique no botão abaixo para permitir o acesso à câmera.",
+    "allowCamera": "Permitir acesso à câmera",
+    "requesting": "Aguarde um momento... Estamos solicitando acesso à câmera.",
+    "denied": "Não conseguimos acessar sua câmera.",
+    "deniedMessage": "O acesso à câmera foi negado anteriormente. Por favor, permita o acesso à câmera nas configurações do seu navegador.",
+    "notAvailable": "O acesso à câmera não está disponível. Certifique-se de estar usando HTTPS ou localhost, e que seu navegador/WebView suporta acesso à câmera.",
+    "notAllowed": "O acesso à câmera foi negado. Por favor, permita o acesso à câmera nas configurações do seu navegador e tente novamente.",
+    "notFound": "Nenhuma câmera encontrada neste dispositivo.",
+    "notSupported": "O acesso à câmera não é suportado neste navegador.",
+    "unknownError": "Ocorreu um erro desconhecido ao acessar a câmera.",
+    "cameraError": "Erro da câmera: {error}"
+  },
+  "cameraOverlay": {
+    "readyToScan": "Pronto para escanear",
+    "alignAndFocus": "Alinhe e foque o exame dentro da moldura",
+    "questions": "questões",
+    "options": "opções"
+  },
+  "examResults": {
+    "correct": "Corretas",
+    "incorrect": "Incorretas",
+    "incomplete": "Incompletas",
+    "illegible": "Ilegíveis",
+    "answer": "Resposta",
+    "correctAnswer": "Resposta correta",
+    "detailTitle": "Detalhe de resultados",
+    "illegibleLabel": "Ilegível"
+  }
+}
+

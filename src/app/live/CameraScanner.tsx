@@ -1303,7 +1303,7 @@ export const CameraScanner: React.FC = () => {
                 onClick={() => setShowCalibration(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg font-medium"
               >
-                🎨 Calibrar Template
+🎨 Calibrar Template
               </button>
             </div>
           )}
